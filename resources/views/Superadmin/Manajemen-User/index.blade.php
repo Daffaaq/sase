@@ -57,6 +57,7 @@
 
     @include('Superadmin.Manajemen-User.create')
     @include('Superadmin.Manajemen-User.confirm')
+    @include('Superadmin.Manajemen-User.error')
 
     <script>
         $(document).ready(function() {
@@ -107,9 +108,9 @@
                         <button data-id="${data}" class="btn btn-xs btn-warning editUserBtn">
                             <i class="fa fa-edit"></i>
                         </button>
-                        <button data-id="${data}" class="btn btn-xs btn-danger deleteUserBtn">
-                            <i class="fa fa-trash"></i>
-                        </button>`;
+                        <button data-id="${row.id}" data-name="${row.name}" data-email="${row.email}" data-username="${row.username}" class="btn btn-xs btn-danger deleteUserBtn">
+            <i class="fa fa-trash"></i>
+        </button>`;
                         }
                     }
                 ],
@@ -127,7 +128,8 @@
 
             $('#usersTable').on('click', '.editUserBtn', function() {
                 var id = $(this).data('id');
-                $.get('/dashboardSuperadmin/Users/edit/' + id, function(data) {
+                $.get('/dashboardSuperadmin/Users/edit/' + id, function(response) {
+                    var data = response.data;
                     $('#userModalLabel').text('Edit User');
                     $('#userForm').attr('action', '/dashboardSuperadmin/Users/update/' + id);
                     $('#userForm').append('<input type="hidden" name="_method" value="PUT">');
@@ -137,11 +139,23 @@
                     $('#role').val(data.role);
                     $('#status').val(data.status);
                     $('#userModal').modal('show');
+                }).fail(function(jqXHR) {
+                    $('#errorModal').modal('show');
                 });
             });
 
+
+
             $('#usersTable').on('click', '.deleteUserBtn', function() {
                 var id = $(this).data('id');
+                var name = $(this).data('name');
+                var email = $(this).data('email');
+                var username = $(this).data('username');
+
+                // Populate modal with user data
+                $('#deleteUserName').text(name);
+                $('#deleteUserEmail').text(email);
+                $('#deleteUserUsername').text(username);
                 $('#confirmDeleteBtn').data('id', id);
                 $('#confirmModal').modal('show');
             });
@@ -157,12 +171,16 @@
                     success: function(result) {
                         $('#delete-success-message').text(result.message).show();
                         setTimeout(function() {
-                            $('#delete-success-message').fadeOut('slow', function() {
-                                $('#confirmModal').modal('hide');
-                            });
-                        },
-                        3000); // Show the success message for 3 seconds before closing the modal
+                                $('#delete-success-message').fadeOut('slow', function() {
+                                    $('#confirmModal').modal('hide');
+                                });
+                            },
+                            3000
+                        ); // Show the success message for 3 seconds before closing the modal
                         dataMaster.ajax.reload();
+                    },
+                    error: function() {
+                        $('#errorModal').modal('show');
                     }
                 });
             });
@@ -207,6 +225,12 @@
 
             $('#cancelDelete').click(function() {
                 $('#confirmModal').modal('hide');
+            });
+            $('#closeErrorModalFooter').click(function() {
+                $('#errorModal').modal('hide');
+            });
+            $('#closeErrorModal').click(function() {
+                $('#errorModal').modal('hide');
             });
         });
     </script>

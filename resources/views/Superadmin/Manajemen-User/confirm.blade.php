@@ -10,6 +10,9 @@
                 <div id="delete-success-message" class="alert alert-success" style="display:none;">Data Berhasil Dihapus
                 </div>
                 <p>Are you sure you want to delete this user?</p>
+                <p><strong>Name:</strong> <span id="deleteUserName"></span></p>
+                <p><strong>Email:</strong> <span id="deleteUserEmail"></span></p>
+                <p><strong>Username:</strong> <span id="deleteUserUsername"></span></p>
             </div>
             <div class="modal-footer">
                 <button type="button" id="cancelDelete" class="btn btn-secondary"

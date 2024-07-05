@@ -19,7 +19,7 @@
 
             <!-- Nav Item - Dashboard -->
             <li class="nav-item active">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="{{ route('dashboardSuperadmin') }}">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
             </li>
@@ -35,7 +35,7 @@
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('manajemen-user-index') }}">
-                    <i class="fas fa-fw fa-exclamation-triangle"></i>
+                    <i class="fas fa-fw fa-users"></i>
                     <span>User</span></a>
             </li>
 

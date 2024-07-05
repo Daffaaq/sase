@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\DataTables;
@@ -80,18 +81,25 @@ class ManajemenUserController extends Controller
      */
     public function edit($id)
     {
+        $loggedInUser = auth()->user();
+        if ($loggedInUser->id == $id) {
+            return response()->json(['error' => true, 'message' => 'You cannot edit your own profile.'], 404);
+        }
         $user = User::find($id);
         if (!$user) {
-            return response()->json(['message' => 'User not found.'], 404);
+            return response()->json(['error' => true, 'message' => 'User not found.'], 404);
         }
-        return response()->json($user);
+        return response()->json(['error' => false, 'data' => $user]);
     }
+
+
 
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
     {
+
         $user = User::find($id);
 
         if (!$user) {
@@ -128,6 +136,11 @@ class ManajemenUserController extends Controller
      */
     public function destroy($id)
     {
+        $loggedInUser = auth()->user();
+        if ($loggedInUser->id == $id) {
+            return response()->json(['error' => true, 'message' => 'You cannot edit your own profile.'], 404);
+        }
+        
         $user = User::find($id);
         if ($user) {
             $user->delete();
