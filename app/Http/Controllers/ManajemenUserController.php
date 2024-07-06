@@ -83,7 +83,7 @@ class ManajemenUserController extends Controller
     {
         $loggedInUser = auth()->user();
         if ($loggedInUser->id == $id) {
-            return response()->json(['error' => true, 'message' => 'You cannot edit your own profile.'], 404);
+            return response()->json(['error' => true, 'message' => 'You cannot edit your own profile.'], 403);
         }
         $user = User::find($id);
         if (!$user) {
@@ -138,9 +138,9 @@ class ManajemenUserController extends Controller
     {
         $loggedInUser = auth()->user();
         if ($loggedInUser->id == $id) {
-            return response()->json(['error' => true, 'message' => 'You cannot edit your own profile.'], 404);
+            return response()->json(['error' => true, 'message' => 'You cannot edit your own profile.'], 403);
         }
-        
+
         $user = User::find($id);
         if ($user) {
             $user->delete();

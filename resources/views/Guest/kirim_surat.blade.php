@@ -127,18 +127,40 @@
                 <h5>(Sistem Arsip Surat Eletronik)</h5>
             </div>
             <div class="card-body">
-                <form id="loginForm" action="{{ route('login-email-post') }}" method="POST">
+                <form id="loginForm" action="#" method="POST">
                     @csrf
                     <div class="mb-3 input-group">
-                        <span class="input-group-text"><i class="fi fi-rr-envelope"></i></span>
-                        <input type="email" class="form-control" id="email" name="email" placeholder="Email"
+                        <span class="input-group-text"><i class="fi fi-rr-user"></i></span>
+                        <input type="text" class="form-control" id="nama_pengirim" name="nama_pengirim"
+                            placeholder="user" required autocomplete="off">
+                    </div>
+                    <div class="mb-3 input-group">
+                        <span class="input-group-text"><i class="fi fi-rr-mailbox-envelope"></i></span>
+                        <input type="email" class="form-control" id="email_pengirim" name="email_pengirim"
+                            placeholder="user@gmail.com" required autocomplete="off">
+                    </div>
+                    <div class="mb-3 input-group">
+                        <span class="input-group-text"><i class="fi fi-rr-building"></i></span>
+                        <input type="text" class="form-control" id="instansi_pengirim" name="instansi_pengirim"
+                            placeholder="Dinas Backup" required autocomplete="off">
+                    </div>
+                    <div class="mb-3 input-group">
+                        <span class="input-group-text"><i class="fi fi-rr-smartphone"></i></span>
+                        <input type="tel" class="form-control" id="no_telp_pengirim" name="no_telp_pengirim"
+                            placeholder="628789876899" required autocomplete="off">
+                    </div>
+                    <div class="mb-3 input-group">
+                        <span class="input-group-text"><i class="fi fi-rr-input-numeric"></i></span>
+                        <input type="text" class="form-control" id="no_surat" name="no_surat" placeholder="no_surat"
                             required autocomplete="off">
                     </div>
                     <div class="mb-3 input-group">
-                        <span class="input-group-text"><i class="fi fi-rr-lock"></i></span>
-                        <input type="password" class="form-control" id="password" name="password"
-                            placeholder="Password" required autocomplete="off">
+                        <span class="input-group-text"><i class="fi fi-rr-file-upload"></i></span>
+                        <input type="file" class="form-control" id="file" name="file" placeholder="file"
+                            required autocomplete="off">
                     </div>
+                    <button type="button" id="previewButton" class="btn btn-secondary w-100 mb-3"
+                        style="display: none;" data-bs-toggle="modal" data-bs-target="#previewModal">Preview</button>
                     <button type="submit" class="btn btn-primary w-100 mb-3">Submit</button>
                     <div class="row">
                         <div class="col-6">
@@ -167,6 +189,23 @@
         </div>
     </div>
 
+    <!-- Modal -->
+    <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="previewModalLabel">File Preview</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <iframe id="filePreview" src="" style="width: 100%; height: 500px;"
+                        frameborder="0"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
@@ -183,31 +222,67 @@
                 toastEl.show();
             }
 
+            $('#file').on('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const fileURL = URL.createObjectURL(file);
+                    $('#filePreview').attr('src', fileURL);
+                    $('#previewButton').show();
+                } else {
+                    $('#previewButton').hide();
+                }
+            });
+
             $('#loginForm').validate({
                 rules: {
-                    email: {
+                    nama_pengirim: {
+                        required: true
+                    },
+                    email_pengirim: {
                         required: true,
                         email: true
                     },
-                    password: {
+                    instansi_pengirim: {
+                        required: true
+                    },
+                    no_telp_pengirim: {
+                        required: true,
+                        digits: true
+                    },
+                    no_surat: {
+                        required: true
+                    },
+                    file: {
                         required: true
                     }
                 },
                 messages: {
-                    email: {
-                        required: "Email is required",
+                    nama_pengirim: {
+                        required: "Nama pengirim is required"
+                    },
+                    email_pengirim: {
+                        required: "Email pengirim is required",
                         email: "Please enter a valid email address"
                     },
-                    password: {
-                        required: "Password is required"
+                    instansi_pengirim: {
+                        required: "Instansi pengirim is required"
+                    },
+                    no_telp_pengirim: {
+                        required: "Nomor telepon pengirim is required",
+                        digits: "Please enter a valid phone number"
+                    },
+                    no_surat: {
+                        required: "Nomor surat is required"
+                    },
+                    file: {
+                        required: "File is required"
                     }
                 },
                 errorPlacement: function(error, element) {
-                    // Combine all error messages into one
                     var errorMessage = '';
                     $('#loginForm .is-invalid').each(function() {
-                        errorMessage +=
-                            `<p>${$(this).attr('name') === 'email' ? 'Email is required' : 'Password is required'}</p>`;
+                        const name = $(this).attr('id');
+                        errorMessage += `<p>${name} is required</p>`;
                     });
                     showToast(errorMessage);
                 },
@@ -218,7 +293,6 @@
                     $(element).removeClass('is-invalid');
                 },
                 submitHandler: function(form) {
-                    // Clear toast on form submission
                     $('.toast-body').html('');
                     form.submit();
                 }

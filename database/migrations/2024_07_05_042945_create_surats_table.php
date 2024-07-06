@@ -17,11 +17,13 @@ return new class extends Migration
             $table->string('no_surat_idx');
             $table->string('file');
             $table->string('nama_file');
+            $table->date('tanggal_upload_surat');
+            $table->time('jam_upload_surat');
             $table->string('nama_pengirim')->nullable();
             $table->string('email_pengirim')->nullable();
             $table->string('instansi_pengirim')->nullable();
             $table->string('no_telp_pengirim')->nullable();
-            $table->enum('status', ['Menunggu', 'Disetujui', 'Ditolak', 'Diarsipkan']);
+            $table->enum('status', ['Menunggu', 'Disetujui', 'Ditolak', 'Diarsipkan'])->nullable();
             $table->enum('status_letter', ['surat_in', 'surat_out', 'surat_internal', 'surat_pegawai']);
             $table->foreignId('approved_by')->nullable()->constrained('users', 'id');
             $table->foreignId('forwarded_to')->nullable()->constrained('users', 'id');
@@ -29,8 +31,6 @@ return new class extends Migration
             $table->timestamp('created_at')->nullable();
             $table->string('updated_by')->nullable();
             $table->timestamp('updated_at')->nullable();
-            $table->string('deleted_by')->nullable();
-            $table->timestamp('deleted_at')->nullable();
         });
     }
 

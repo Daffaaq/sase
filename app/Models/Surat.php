@@ -15,6 +15,8 @@ class Surat extends Model
         'no_surat_idx',
         'file',
         'nama_file',
+        'tanggal_upload_surat',
+        'jam_upload_surat',
         'nama_pengirim',
         'email_pengirim',
         'instansi_pengirim',

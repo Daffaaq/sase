@@ -40,9 +40,37 @@
             </li>
 
             <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
+                    aria-expanded="true" aria-controls="collapseTwo">
+                    <i class="fas fa-fw fa-envelope"></i>
+                    <span>Surat</span>
+                </a>
+                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Custom Surat:</h6>
+                        <a class="collapse-item" href="{{ route('manajemen-letter-index') }}">
+                            <i class="fas fa-minus"></i> Surat
+                        </a>
+                        <a class="collapse-item" href="buttons.html">
+                            <i class="fas fa-minus"></i> Surat Masuk
+                        </a>
+                        <a class="collapse-item" href="cards.html">
+                            <i class="fas fa-minus"></i> Surat Keluar
+                        </a>
+                        <a class="collapse-item" href="{{ route('manajemen-letter-in-index') }}">
+                            <i class="fas fa-minus"></i> Surat Internal
+                        </a>
+                        <a class="collapse-item" href="cards.html">
+                            <i class="fas fa-minus"></i> Surat Pegawai
+                        </a>
+                    </div>
+                </div>
+            </li>
+
+            <li class="nav-item">
                 <a class="nav-link" href="#">
-                    <i class="fas fa-fw fa-check"></i>
-                    <span>Files</span></a>
+                    <i class="fas fa-fw fa-archive"></i>
+                    <span>Surat Arsip</span></a>
             </li>
             <!-- Tambahkan tautan "Logout" di luar div dengan class "collapse" -->
             <li class="nav-item">
