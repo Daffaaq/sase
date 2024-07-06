@@ -21,6 +21,7 @@ class Surat extends Model
         'email_pengirim',
         'instansi_pengirim',
         'no_telp_pengirim',
+        'deskripsi_surat',
         'status',
         'status_letter',
         'approved_by',

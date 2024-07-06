@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('email_pengirim')->nullable();
             $table->string('instansi_pengirim')->nullable();
             $table->string('no_telp_pengirim')->nullable();
+            $table->longText('deskripsi_surat')->nullable();
             $table->enum('status', ['Menunggu', 'Disetujui', 'Ditolak', 'Diarsipkan'])->nullable();
             $table->enum('status_letter', ['surat_in', 'surat_out', 'surat_internal', 'surat_pegawai']);
             $table->foreignId('approved_by')->nullable()->constrained('users', 'id');

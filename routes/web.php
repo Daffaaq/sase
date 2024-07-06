@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ManajemenUserController;
 use App\Http\Controllers\SuratAllSuperadminController;
+use App\Http\Controllers\SuratGuestSuperadminController;
 use App\Http\Controllers\SuratSuperadminController;
 use Illuminate\Support\Facades\Route;
 
@@ -26,6 +27,8 @@ Route::get('/login-username', function () {
 });
 
 Route::middleware(['guest'])->group(function () {
+    Route::get('/surat-Tamu', [SuratGuestSuperadminController::class, 'viewform'])->name('view-form');
+    Route::post('/surat-Tamu/post', [SuratGuestSuperadminController::class, 'sendSurat'])->name('post-surat-eksternal');
     Route::get('/login-email', [LoginController::class, 'indexEmail'])->name('login-email');
     Route::get('/login-username', [LoginController::class, 'indexUsername'])->name('login-username');
     Route::post('/login-email/post', [LoginController::class, 'loginEmail'])->name('login-email-post');
