@@ -144,6 +144,9 @@ return [
         // 'store' => 'redis',
     ],
 
+    'maintenance' => env('APP_MAINTENANCE', false),
+
+
     /*
     |--------------------------------------------------------------------------
     | Autoloaded Service Providers

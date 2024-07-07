@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Mail\SendEmail;
 use Illuminate\Support\Str;
 use App\Models\Surat;
+use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
@@ -88,5 +89,21 @@ class SuratGuestSuperadminController extends Controller
             9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII'
         ];
         return $map[$month];
+    }
+
+    public function index()
+    {
+        return view('Superadmin.Surat_In.index');
+    }
+
+    public function list(Request $request)
+    {
+        if ($request->ajax()) {
+            $data = Surat::select('id', 'no_surat', 'no_surat_idx', 'nama_file', 'status_letter', 'file')->where('status_letter', 'surat_in')->get();
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->make(true);
+        }
+        return response()->json(['message' => 'Method not allowed'], 405);
     }
 }

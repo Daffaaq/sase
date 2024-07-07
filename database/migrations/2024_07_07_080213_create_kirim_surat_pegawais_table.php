@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('surat_arsips', function (Blueprint $table) {
+        Schema::create('kirim_surat_pegawais', function (Blueprint $table) {
             $table->id();
-            $table->enum('status_letter', ['surat_arsip']);
+            $table->string('judul');
+            $table->string('deskripsi');
+            $table->enum('status_letter', ['surat_pegawai']);
             $table->foreignId('letter_id')->constrained('surats', 'id');
             $table->string('created_by')->nullable();
             $table->timestamp('created_at')->nullable();
@@ -27,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('surat_arsips');
+        Schema::dropIfExists('kirim_surat_pegawais');
     }
 };

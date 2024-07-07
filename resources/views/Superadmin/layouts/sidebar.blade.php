@@ -18,7 +18,7 @@
             <hr class="sidebar-divider my-0">
 
             <!-- Nav Item - Dashboard -->
-            <li class="nav-item active">
+            <li class="nav-item {{ Request::routeIs('dashboardSuperadmin') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('dashboardSuperadmin') }}">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
@@ -33,31 +33,37 @@
             </div>
 
             <!-- Nav Item - Pages Collapse Menu -->
-            <li class="nav-item">
+            <li class="nav-item {{ Request::routeIs('manajemen-user-index') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('manajemen-user-index') }}">
                     <i class="fas fa-fw fa-users"></i>
                     <span>User</span></a>
             </li>
 
-            <li class="nav-item">
+            <li
+                class="nav-item {{ Request::routeIs('manajemen-letter-index', 'manajemen-letter-masuk-index', 'manajemen-letter-in-index') ? 'active' : '' }}">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
                     aria-expanded="true" aria-controls="collapseTwo">
                     <i class="fas fa-fw fa-envelope"></i>
                     <span>Surat</span>
                 </a>
-                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                <div id="collapseTwo"
+                    class="collapse {{ Request::routeIs('manajemen-letter-index', 'manajemen-letter-masuk-index', 'manajemen-letter-in-index') ? 'show' : '' }}"
+                    aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Custom Surat:</h6>
-                        <a class="collapse-item" href="{{ route('manajemen-letter-index') }}">
+                        <a class="collapse-item {{ Request::routeIs('manajemen-letter-index') ? 'active' : '' }}"
+                            href="{{ route('manajemen-letter-index') }}">
                             <i class="fas fa-minus"></i> Surat
                         </a>
-                        <a class="collapse-item" href="buttons.html">
+                        <a class="collapse-item {{ Request::routeIs('manajemen-letter-masuk-index') ? 'active' : '' }}"
+                            href="{{ route('manajemen-letter-masuk-index') }}">
                             <i class="fas fa-minus"></i> Surat Masuk
                         </a>
                         <a class="collapse-item" href="cards.html">
                             <i class="fas fa-minus"></i> Surat Keluar
                         </a>
-                        <a class="collapse-item" href="{{ route('manajemen-letter-in-index') }}">
+                        <a class="collapse-item {{ Request::routeIs('manajemen-letter-in-index') ? 'active' : '' }}"
+                            href="{{ route('manajemen-letter-in-index') }}">
                             <i class="fas fa-minus"></i> Surat Internal
                         </a>
                         <a class="collapse-item" href="cards.html">
@@ -72,6 +78,7 @@
                     <i class="fas fa-fw fa-archive"></i>
                     <span>Surat Arsip</span></a>
             </li>
+
             <!-- Tambahkan tautan "Logout" di luar div dengan class "collapse" -->
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('logout') }}" data-toggle="modal" data-target="#customLogoutModal">

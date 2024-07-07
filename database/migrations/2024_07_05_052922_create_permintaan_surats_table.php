@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('request_title');
             $table->text('request_content');
+            $table->enum('status_letter', ['surat_request_pegawai']);
             $table->enum('status', ['Menunggu', 'Disetujui', 'Ditolak']);
             $table->foreignId('requested_by')->nullable()->constrained('users', 'id');
             $table->foreignId('approved_by')->nullable()->constrained('users', 'id');

@@ -116,7 +116,7 @@
                         <button data-id="${row.id}" class="btn btn-xs btn-danger archiveSuratBtn" title="Archive Surat">
                             <i class="fa fa-archive"></i>
                         </button>
-                        <button onclick="viewFile('${filePath}')" class="btn btn-xs btn-info" title="View File">
+                        <button onclick="viewFile('${filePath}')" class="btn btn-xs btn-info infoSuratBtn" title="View File">
                             <i class="fa fa-eye"></i>
                         </button>
                         <a href="${filePath}" target="_blank" class="btn btn-xs btn-secondary" title="Download File">
@@ -146,42 +146,78 @@
                     // Update URL action dari form dengan ID surat
                     $('#suratFormEdit').attr('action',
                         '/dashboardSuperadmin/surat-internal/update/' + id);
-                    // Buka modal
+
+                    // Check if the file exists and show a preview
+                    if (data.file) {
+                        console.log(data.file);
+                        var fileExtension = data.file.split('.').pop().toLowerCase();
+                        var fileURL = '/storage/' + data.file; // Update with your file storage path
+                        console.log(fileExtension, fileURL);
+                        if (fileExtension === 'pdf') {
+                            $('#file-preview-content').attr('src', fileURL).show();
+                            $('#word-preview-content').hide();
+                        } else {
+                            $('#file-preview-content').hide();
+                            $('#word-preview-content').text(
+                                'Preview not available for this file type.').show();
+                        }
+                        $('#file-preview').show();
+                    } else {
+                        $('#file-preview').hide();
+                        $('#file-preview-content').attr('src', '');
+                        $('#word-preview-content').hide();
+                    }
+
                     $('#editSuratModal').modal('show');
                 }).fail(function(jqXHR) {
                     $('#errorModal').modal('show');
                 });
             });
 
+            $('#suratTable').on('click', '.sendSuratBtn', function() {
+                var suratId = $(this).data('id');
+                $('#surat_id').val(suratId);
 
-            $('#suratTable').on('click', '.archiveSuratBtn', function() {
-                var id = $(this).data('id');
-                // Populate modal with surat data if needed
-                $('#confirmDeleteBtn').data('id', id);
-                $('#confirmModal').modal('show');
+                // Fetch users with role 'pegawai'
+                $.ajax({
+                    url: '{{ route('fetch.pegawai') }}',
+                    type: 'GET',
+                    success: function(response) {
+                        var pegawaiSelect = $('#pegawai');
+                        pegawaiSelect.empty(); // Clear previous options
+                        response.pegawai.forEach(function(user) {
+                            pegawaiSelect.append(new Option(user.name, user.id));
+                        });
+                        $('#sendSuratModal').modal('show');
+                    },
+                    error: function(xhr) {
+                        alert('Failed to fetch pegawai. Please try again.');
+                    }
+                });
             });
 
-            $('#confirmDeleteBtn').click(function() {
-                var id = $(this).data('id');
+            $('#sendSuratForm').submit(function(e) {
+                e.preventDefault();
+                var formData = $(this).serialize();
                 $.ajax({
-                    url: '/dashboardSuperadmin/Surat/destroy/' + id,
-                    type: 'DELETE',
-                    data: {
-                        _token: '{{ csrf_token() }}'
-                    },
+                    url: $(this).attr('action'),
+                    type: 'POST',
+                    data: formData,
                     success: function(result) {
-                        $('#delete-success-message').text(result.message).show();
-                        setTimeout(function() {
-                                $('#delete-success-message').fadeOut('slow', function() {
-                                    $('#confirmModal').modal('hide');
-                                });
-                            },
-                            3000
-                        ); // Show the success message for 3 seconds before closing the modal
+                        $('#sendSuratModal').modal('hide');
+                        $('#success-message').text(result.message).show();
                         dataMaster.ajax.reload();
                     },
-                    error: function() {
-                        $('#errorModal').modal('show');
+                    error: function(xhr) {
+                        var errors = xhr.responseJSON.errors;
+                        var errorMessage = '';
+                        $.each(errors, function(key, value) {
+                            errorMessage += value + '\n';
+                        });
+                        $('#error-message').html(errorMessage).show();
+                        setTimeout(function() {
+                            $('#error-message').fadeOut('slow');
+                        }, 5000);
                     }
                 });
             });
@@ -274,12 +310,8 @@
                 $('#suratModal').modal('hide');
             });
 
-            $('#closeConfirmModal, #cancelDelete').click(function() {
-                $('#confirmModal').modal('hide');
-            });
-
-            $('#closeErrorModal, #closeErrorModalFooter').click(function() {
-                $('#errorModal').modal('hide');
+            $('#editclosemodal').click(function() {
+                $('#editSuratModal').modal('hide');
             });
         });
 

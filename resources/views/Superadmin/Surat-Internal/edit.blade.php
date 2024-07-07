@@ -3,7 +3,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="suratModalLabel">Edit Surat Internal</h5>
-                <button type="button" id="closemodal" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" id="editclosemodal" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="form-message text-center p-2">
@@ -38,3 +38,55 @@
         </div>
     </div>
 </div>
+<script>
+    $(document).ready(function() {
+        $('#file').on('change', function() {
+            var file = this.files[0];
+            var maxSize = 5 * 1024 * 1024; // 5MB in bytes
+            var validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']; // Valid MIME types
+
+            if (file) {
+                if (file.size > maxSize) {
+                    $('#file-size-warning').show();
+                    $('#file-type-warning').hide();
+                    $('#file-preview').hide();
+                    $('#file-preview-content').attr('src', '');
+                    $('#word-preview-content').hide();
+                    return;
+                } else {
+                    $('#file-size-warning').hide();
+                }
+
+                if (!validTypes.includes(file.type)) {
+                    $('#file-type-warning').show();
+                    $('#file-size-warning').hide();
+                    $('#file-preview').hide();
+                    $('#file-preview-content').attr('src', '');
+                    $('#word-preview-content').hide();
+                    return;
+                } else {
+                    $('#file-type-warning').hide();
+                }
+
+                var fileURL = URL.createObjectURL(file);
+                if (file.type === 'application/pdf') {
+                    $('#file-preview-content').attr('src', fileURL).show();
+                    $('#word-preview-content').hide();
+                } else {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#word-preview-content').text(e.target.result).show();
+                        $('#file-preview-content').hide();
+                    };
+                    reader.readAsText(file);
+                }
+
+                $('#file-preview').show();
+            } else {
+                $('#file-preview').hide();
+                $('#file-preview-content').attr('src', '');
+                $('#word-preview-content').hide();
+            }
+        });
+    });
+</script>

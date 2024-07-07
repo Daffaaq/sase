@@ -31,7 +31,7 @@
     @endif
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Surat Management</h6>
+            <h6 class="m-0 font-weight-bold text-primary">Surat Masuk Management</h6>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -56,6 +56,7 @@
     @include('Superadmin.Surat-Internal.create')
     @include('Superadmin.Surat-Internal.confirm')
     @include('Superadmin.Surat-Internal.error')
+    @include('Superadmin.Surat-Internal.edit')
 
     <script>
         $(document).ready(function() {
@@ -63,7 +64,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: '{{ route('sin.list') }}',
+                    url: '{{ route('sot.list') }}',
                     type: 'POST',
                     dataType: 'json',
                     data: {
@@ -92,22 +93,7 @@
                         data: 'status_letter',
                         name: 'status_letter',
                         render: function(data, type, row, meta) {
-                            let badgeClass = 'badge-info'; // Default class
-
-                            switch (data) {
-                                case 'surat_in':
-                                    badgeClass = 'badge-success';
-                                    break;
-                                case 'surat_out':
-                                    badgeClass = 'badge-danger';
-                                    break;
-                                case 'surat_internal':
-                                    badgeClass = 'badge-info';
-                                    break;
-                            }
-
-                            return '<span class="badge ' + badgeClass + '">' + data.replace('_',
-                                ' ') + '</span>';
+                            return '<span class="badge badge-success">' + data + '</span>';
                         }
                     },
                     {
@@ -118,7 +104,16 @@
                         render: function(data, type, row, meta) {
                             var filePath = '/storage/' + data; // Adjust this path as necessary
                             return `
-                        <button onclick="viewFile('${filePath}')" class="btn btn-xs btn-info" title="View File">
+                        <button data-id="${row.id}" class="btn btn-xs btn-warning editSuratBtn" title="Edit Surat">
+                            <i class="fa fa-edit"></i>
+                        </button>
+                        <button data-id="${row.id}" class="btn btn-xs btn-success sendSuratBtn" title="Send Surat">
+                            <i class="fa fa-paper-plane"></i>
+                        </button>
+                        <button data-id="${row.id}" class="btn btn-xs btn-danger archiveSuratBtn" title="Archive Surat">
+                            <i class="fa fa-archive"></i>
+                        </button>
+                        <button onclick="viewFile('${filePath}')" class="btn btn-xs btn-info infoSuratBtn" title="View File">
                             <i class="fa fa-eye"></i>
                         </button>
                         <a href="${filePath}" target="_blank" class="btn btn-xs btn-secondary" title="Download File">
@@ -132,6 +127,7 @@
                     $('[data-toggle="tooltip"]').tooltip();
                 }
             });
+
         });
 
         function viewFile(filePath) {

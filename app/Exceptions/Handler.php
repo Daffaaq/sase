@@ -4,6 +4,7 @@ namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
+use Illuminate\Http\Request;
 
 class Handler extends ExceptionHandler
 {
@@ -26,5 +27,19 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+    }
+
+    public function render($request, Throwable $exception)
+    {
+        if ($this->isHttpException($exception)) {
+            $statusCode = $exception->getStatusCode();
+            if ($statusCode == 404) {
+                return response()->view('Error-Template.404', [], 404);
+            }
+            if ($statusCode == 500) {
+                return response()->view('Error-Template.500', [], 500);
+            }
+        }
+        return parent::render($request, $exception);
     }
 }

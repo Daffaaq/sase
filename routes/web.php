@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ManajemenUserController;
 use App\Http\Controllers\SuratAllSuperadminController;
 use App\Http\Controllers\SuratGuestSuperadminController;
+use App\Http\Controllers\SuratPegawaiSuperadminController;
 use App\Http\Controllers\SuratSuperadminController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,8 +21,13 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('Guest.kirim_surat');
+    return view('konstruksi');
 });
+
+Route::get('/nonexistent', function () {
+    abort(404);
+});
+
 Route::get('/login-username', function () {
     return view('Auth.loginUsername');
 });
@@ -64,6 +70,14 @@ Route::middleware(['auth', 'checkStatus:aktif', 'checkRole:superadmin'])->group(
     Route::prefix('/dashboardSuperadmin')->group(function () {
         Route::get('/surat-all', [SuratAllSuperadminController::class, 'index'])->name('manajemen-letter-index');
         Route::post('surat-all/list', [SuratAllSuperadminController::class, 'list'])->name('sin.all.list');
+    });
+    Route::prefix('/dashboardSuperadmin')->group(function () {
+        Route::get('/surat-masuk', [SuratGuestSuperadminController::class, 'index'])->name('manajemen-letter-masuk-index');
+        Route::post('surat-masuk/list', [SuratGuestSuperadminController::class, 'list'])->name('sot.list');
+    });
+    Route::prefix('/dashboardSuperadmin')->group(function () {
+        Route::get('/fetch-pegawai', [SuratPegawaiSuperadminController::class, 'fetchPegawai'])->name('fetch.pegawai');
+        Route::post('surat-masuk/list', [SuratGuestSuperadminController::class, 'list'])->name('sot.list');
     });
 });
 
