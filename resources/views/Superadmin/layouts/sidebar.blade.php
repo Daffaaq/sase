@@ -43,18 +43,14 @@
                 class="nav-item {{ Request::routeIs('manajemen-letter-index', 'manajemen-letter-masuk-index', 'manajemen-letter-in-index') ? 'active' : '' }}">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
                     aria-expanded="true" aria-controls="collapseTwo">
-                    <i class="fas fa-fw fa-envelope"></i>
-                    <span>Surat</span>
+                    <i class="fas fa-fw fa-list"></i>
+                    <span>Category Surat</span>
                 </a>
                 <div id="collapseTwo"
                     class="collapse {{ Request::routeIs('manajemen-letter-index', 'manajemen-letter-masuk-index', 'manajemen-letter-in-index') ? 'show' : '' }}"
                     aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Custom Surat:</h6>
-                        <a class="collapse-item {{ Request::routeIs('manajemen-letter-index') ? 'active' : '' }}"
-                            href="{{ route('manajemen-letter-index') }}">
-                            <i class="fas fa-minus"></i> Surat
-                        </a>
+                        <h6 class="collapse-header">Custom Category Surat:</h6>
                         <a class="collapse-item {{ Request::routeIs('manajemen-letter-masuk-index') ? 'active' : '' }}"
                             href="{{ route('manajemen-letter-masuk-index') }}">
                             <i class="fas fa-minus"></i> Surat Masuk
@@ -62,17 +58,31 @@
                         <a class="collapse-item" href="cards.html">
                             <i class="fas fa-minus"></i> Surat Keluar
                         </a>
-                        <a class="collapse-item {{ Request::routeIs('manajemen-letter-in-index') ? 'active' : '' }}"
-                            href="{{ route('manajemen-letter-in-index') }}">
-                            <i class="fas fa-minus"></i> Surat Internal
+                        <a class="collapse-item" href="cards.html">
+                            <i class="fas fa-minus"></i> Surat Disposisi
                         </a>
                         <a class="collapse-item" href="cards.html">
-                            <i class="fas fa-minus"></i> Surat Pegawai
+                            <i class="fas fa-minus"></i> Surat Arsip
                         </a>
                     </div>
                 </div>
             </li>
 
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-fw fa-envelope-open-text"></i>
+                    <span>Surat Masuk</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-fw fa-envelope-open"></i>
+                    <span>Surat Keluar</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-fw fa-share"></i>
+                    <span>Surat Disposisi</span></a>
+            </li>
             <li class="nav-item">
                 <a class="nav-link" href="#">
                     <i class="fas fa-fw fa-archive"></i>
