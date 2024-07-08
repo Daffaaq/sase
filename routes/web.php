@@ -43,19 +43,22 @@ Route::middleware(['guest'])->group(function () {
 
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-Route::middleware(['auth', 'checkStatus:aktif', 'checkRole:kadiv'])->group(function () {
+Route::middleware(['auth', 'checkStatus:aktif', 'checkRole:kadiv', 'check.uuid'])->group(function () {
     Route::get('/dashboardkadiv', [DashboardController::class, 'indexKadiv']);
 });
 
-Route::middleware(['auth', 'checkStatus:aktif', 'checkRole:superadmin'])->group(function () {
+Route::middleware(['auth', 'checkStatus:aktif', 'checkRole:superadmin', 'check.uuid'])->group(function () {
     Route::get('/dashboardSuperadmin', [DashboardController::class, 'indexSuperadmin'])->name('dashboardSuperadmin');
     Route::prefix('/dashboardSuperadmin')->group(function () {
         Route::get('/Users', [ManajemenUserController::class, 'index'])->name('manajemen-user-index');
         Route::get('/Users/create', [ManajemenUserController::class, 'create']);
         Route::post('/Users/store', [ManajemenUserController::class, 'store'])->name('manajemen-user-store');
-        Route::get('/Users/edit/{id}', [ManajemenUserController::class, 'edit']);
-        Route::put('/Users/update/{id}', [ManajemenUserController::class, 'update']);
-        Route::delete('/Users/destroy/{id}', [ManajemenUserController::class, 'destroy']);
+        // Route::get('/Users/edit/{id}', [ManajemenUserController::class, 'edit']);
+        // Route::put('/Users/update/{id}', [ManajemenUserController::class, 'update']);
+        // Route::delete('/Users/destroy/{id}', [ManajemenUserController::class, 'destroy']);
+        Route::get('/Users/edit/{uuid}', [ManajemenUserController::class, 'edit']);
+        Route::put('/Users/update/{uuid}', [ManajemenUserController::class, 'update']);
+        Route::delete('/Users/destroy/{uuid}', [ManajemenUserController::class, 'destroy']);
         Route::post('Users/list', [ManajemenUserController::class, 'list'])->name('users.list');
     });
     Route::prefix('/dashboardSuperadmin')->group(function () {
@@ -81,6 +84,6 @@ Route::middleware(['auth', 'checkStatus:aktif', 'checkRole:superadmin'])->group(
     });
 });
 
-Route::middleware(['auth', 'checkStatus:aktif', 'checkRole:pegawai'])->group(function () {
+Route::middleware(['auth', 'checkStatus:aktif', 'checkRole:pegawai', 'check.uuid'])->group(function () {
     Route::get('/dashboardpegawai', [DashboardController::class, 'indexPegawai']);
 });

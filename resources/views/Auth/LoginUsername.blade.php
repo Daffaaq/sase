@@ -127,7 +127,7 @@
                 <h5>(Sistem Arsip Surat Eletronik)</h5>
             </div>
             <div class="card-body">
-                <form id="loginForm" action="{{route('login-username-post')}}" method="POST">
+                <form id="loginForm" action="{{ route('login-username-post') }}" method="POST">
                     @csrf
                     <div class="mb-3">
                         <div class="input-group">
@@ -225,6 +225,8 @@
                     form.submit();
                 }
             });
+
+
         });
     </script>
 </body>

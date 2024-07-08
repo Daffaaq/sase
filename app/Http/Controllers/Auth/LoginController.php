@@ -69,6 +69,9 @@ class LoginController extends Controller
         if (Auth::attempt($infologin)) {
             $user = Auth::user();
             // dd($infologin);
+            $uuid = $user->uuid;
+            // dd($uuid);
+            session(['uuid' => $uuid]);
             // dd($user);
             if ($user->role === 'kadiv') {
                 return redirect('dashboardkadiv');

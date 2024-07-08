@@ -22,7 +22,7 @@ class ManajemenUserController extends Controller
     public function list(Request $request)
     {
         if ($request->ajax()) {
-            $data = User::select('id', 'name', 'username', 'email', 'role', 'status');
+            $data = User::select('id', 'uuid', 'name', 'username', 'email', 'role', 'status');
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->make(true);
@@ -79,13 +79,25 @@ class ManajemenUserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id)
+    // public function edit($id)
+    // {
+    //     $loggedInUser = auth()->user();
+    //     if ($loggedInUser->id == $id) {
+    //         return response()->json(['error' => true, 'message' => 'You cannot edit your own profile.'], 403);
+    //     }
+    //     $user = User::find($id);
+    //     if (!$user) {
+    //         return response()->json(['error' => true, 'message' => 'User not found.'], 404);
+    //     }
+    //     return response()->json(['error' => false, 'data' => $user]);
+    // }
+    public function edit($uuid)
     {
         $loggedInUser = auth()->user();
-        if ($loggedInUser->id == $id) {
+        if ($loggedInUser->uuid == $uuid) {
             return response()->json(['error' => true, 'message' => 'You cannot edit your own profile.'], 403);
         }
-        $user = User::find($id);
+        $user = User::where('uuid', $uuid)->first();
         if (!$user) {
             return response()->json(['error' => true, 'message' => 'User not found.'], 404);
         }
@@ -94,13 +106,46 @@ class ManajemenUserController extends Controller
 
 
 
+
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-    {
+    // public function update(Request $request, string $id)
+    // {
 
-        $user = User::find($id);
+    //     $user = User::find($id);
+
+    //     if (!$user) {
+    //         return response()->json(['message' => 'User not found.'], 404);
+    //     }
+
+    //     $validator = Validator::make($request->all(), [
+    //         'name' => 'required|string|max:255',
+    //         'username' => 'required|string|max:255|unique:users,username,' . $id,
+    //         'email' => 'required|string|email|max:255|unique:users,email,' . $id,
+    //         'password' => 'nullable|string|min:8',
+    //         'role' => 'required|in:superadmin,kadiv,pegawai',
+    //         'status' => 'required|in:aktif,nonaktif',
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return response()->json(['errors' => $validator->errors()], 422);
+    //     }
+
+    //     $user->update([
+    //         'name' => $request->name,
+    //         'username' => $request->username,
+    //         'email' => $request->email,
+    //         'password' => $request->password ? Hash::make($request->password) : $user->password,
+    //         'role' => $request->role,
+    //         'status' => $request->status,
+    //     ]);
+
+    //     return response()->json(['message' => 'User updated successfully.', 'user' => $user], 200);
+    // }
+    public function update(Request $request, string $uuid)
+    {
+        $user = User::where('uuid', $uuid)->first();
 
         if (!$user) {
             return response()->json(['message' => 'User not found.'], 404);
@@ -108,8 +153,8 @@ class ManajemenUserController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'username' => 'required|string|max:255|unique:users,username,' . $id,
-            'email' => 'required|string|email|max:255|unique:users,email,' . $id,
+            'username' => 'required|string|max:255|unique:users,username,' . $user->id,
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8',
             'role' => 'required|in:superadmin,kadiv,pegawai',
             'status' => 'required|in:aktif,nonaktif',
@@ -131,17 +176,32 @@ class ManajemenUserController extends Controller
         return response()->json(['message' => 'User updated successfully.', 'user' => $user], 200);
     }
 
+
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    // public function destroy($id)
+    // {
+    //     $loggedInUser = auth()->user();
+    //     if ($loggedInUser->id == $id) {
+    //         return response()->json(['error' => true, 'message' => 'You cannot edit your own profile.'], 403);
+    //     }
+
+    //     $user = User::find($id);
+    //     if ($user) {
+    //         $user->delete();
+    //         return response()->json(['message' => 'User deleted successfully.']);
+    //     }
+    //     return response()->json(['message' => 'User not found.'], 404);
+    // }
+    public function destroy($uuid)
     {
         $loggedInUser = auth()->user();
-        if ($loggedInUser->id == $id) {
-            return response()->json(['error' => true, 'message' => 'You cannot edit your own profile.'], 403);
+        if ($loggedInUser->uuid == $uuid) {
+            return response()->json(['error' => true, 'message' => 'You cannot delete your own profile.'], 403);
         }
 
-        $user = User::find($id);
+        $user = User::where('uuid', $uuid)->first();
         if ($user) {
             $user->delete();
             return response()->json(['message' => 'User deleted successfully.']);

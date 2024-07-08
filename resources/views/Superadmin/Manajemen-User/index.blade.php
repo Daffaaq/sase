@@ -99,18 +99,18 @@
                         name: 'status'
                     },
                     {
-                        data: 'id',
-                        name: 'id',
+                        data: 'uuid',
+                        name: 'uuid',
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row, meta) {
                             return `
-                        <button data-id="${data}" class="btn btn-xs btn-warning editUserBtn">
+                        <button data-uuid="${row.uuid}" class="btn btn-xs btn-warning editUserBtn">
                             <i class="fa fa-edit"></i>
                         </button>
-                        <button data-id="${row.id}" data-name="${row.name}" data-email="${row.email}" data-username="${row.username}" class="btn btn-xs btn-danger deleteUserBtn">
-            <i class="fa fa-trash"></i>
-        </button>`;
+                        <button data-uuid="${row.uuid}" data-name="${row.name}" data-email="${row.email}" data-username="${row.username}" class="btn btn-xs btn-danger deleteUserBtn">
+                            <i class="fa fa-trash"></i>
+                        </button>`;
                         }
                     }
                 ],
@@ -127,11 +127,11 @@
             });
 
             $('#usersTable').on('click', '.editUserBtn', function() {
-                var id = $(this).data('id');
-                $.get('/dashboardSuperadmin/Users/edit/' + id, function(response) {
+                var uuid = $(this).data('uuid');
+                $.get('/dashboardSuperadmin/Users/edit/' + uuid, function(response) {
                     var data = response.data;
                     $('#userModalLabel').text('Edit User');
-                    $('#userForm').attr('action', '/dashboardSuperadmin/Users/update/' + id);
+                    $('#userForm').attr('action', '/dashboardSuperadmin/Users/update/' + uuid);
                     $('#userForm').append('<input type="hidden" name="_method" value="PUT">');
                     $('#name').val(data.name);
                     $('#username').val(data.username);
@@ -144,10 +144,8 @@
                 });
             });
 
-
-
             $('#usersTable').on('click', '.deleteUserBtn', function() {
-                var id = $(this).data('id');
+                var uuid = $(this).data('uuid');
                 var name = $(this).data('name');
                 var email = $(this).data('email');
                 var username = $(this).data('username');
@@ -156,14 +154,14 @@
                 $('#deleteUserName').text(name);
                 $('#deleteUserEmail').text(email);
                 $('#deleteUserUsername').text(username);
-                $('#confirmDeleteBtn').data('id', id);
+                $('#confirmDeleteBtn').data('uuid', uuid);
                 $('#confirmModal').modal('show');
             });
 
             $('#confirmDeleteBtn').click(function() {
-                var id = $(this).data('id');
+                var uuid = $(this).data('uuid');
                 $.ajax({
-                    url: '/dashboardSuperadmin/Users/destroy/' + id,
+                    url: '/dashboardSuperadmin/Users/destroy/' + uuid,
                     type: 'DELETE',
                     data: {
                         _token: '{{ csrf_token() }}'
@@ -184,6 +182,7 @@
                     }
                 });
             });
+
 
             $('#userForm').submit(function(e) {
                 e.preventDefault();
@@ -216,9 +215,11 @@
                     }
                 });
             });
+
             $('#closemodal').click(function() {
                 $('#userModal').modal('hide');
             });
+
             $('#closeConfirmModal').click(function() {
                 $('#confirmModal').modal('hide');
             });
@@ -226,9 +227,11 @@
             $('#cancelDelete').click(function() {
                 $('#confirmModal').modal('hide');
             });
+
             $('#closeErrorModalFooter').click(function() {
                 $('#errorModal').modal('hide');
             });
+
             $('#closeErrorModal').click(function() {
                 $('#errorModal').modal('hide');
             });

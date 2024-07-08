@@ -19,8 +19,7 @@ class SuratAllSuperadminController extends Controller
     public function list(Request $request)
     {
         if ($request->ajax()) {
-            $data = Surat::select('id', 'no_surat', 'no_surat_idx', 'nama_file', 'status_letter', 'file');
-            return DataTables::of($data)
+            return DataTables::of($request)
                 ->addIndexColumn()
                 ->make(true);
         }
