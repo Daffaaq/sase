@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('outgoing_letters', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
             $table->unsignedBigInteger('reference_letter_id');
             $table->string('nomer_surat_keluar');
             $table->string('nomer_surat_keluark_idx');

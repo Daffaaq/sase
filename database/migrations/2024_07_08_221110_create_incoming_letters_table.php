@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('incoming_letters', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
             $table->string('nomer_surat_masuk');
             $table->string('nomer_surat_masuk_idx');
             $table->date('tanggal_surat_masuk');

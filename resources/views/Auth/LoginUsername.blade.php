@@ -127,6 +127,15 @@
                 <h5>(Sistem Arsip Surat Eletronik)</h5>
             </div>
             <div class="card-body">
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
                 <form id="loginForm" action="{{ route('login-username-post') }}" method="POST">
                     @csrf
                     <div class="mb-3">
@@ -142,6 +151,10 @@
                             <input type="password" class="form-control" id="password" name="password"
                                 placeholder="Password" required autocomplete="off">
                         </div>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                        <label class="form-check-label" for="remember">Remember Me</label>
                     </div>
                     <button type="submit" class="btn btn-primary w-100 mb-3">Submit</button>
                     <div class="row">
@@ -225,10 +238,8 @@
                     form.submit();
                 }
             });
-
-
         });
     </script>
 </body>
 
-</html>
+</html

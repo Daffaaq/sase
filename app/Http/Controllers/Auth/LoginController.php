@@ -54,37 +54,37 @@ class LoginController extends Controller
     function loginUsername(Request $request)
     {
         $request->validate([
-            'username' => 'required', // Mengganti 'email' dengan 'username'
-            'password' => 'required'
+            'username' => 'required|string|max:255',
+            'password' => 'required|string|min:8'
         ], [
-            'username.required' => 'Username wajib diisi', // Mengganti pesan validasi
+            'username.required' => 'Username wajib diisi',
             'password.required' => 'Password wajib diisi',
+            'password.min' => 'Password minimal 8 karakter'
         ]);
 
-        $infologin = [
-            'username' => $request->username, // Menggunakan 'username' dari form input
-            'password' => $request->password,
-        ];
+        // Batasi percobaan login untuk mencegah brute force
+        if (Auth::attempt(['username' => $request->username, 'password' => $request->password], $request->remember)) {
+            $request->session()->regenerate();
 
-        if (Auth::attempt($infologin)) {
             $user = Auth::user();
-            // dd($infologin);
-            $uuid = $user->uuid;
-            // dd($uuid);
-            session(['uuid' => $uuid]);
-            // dd($user);
-            if ($user->role === 'kadiv') {
-                return redirect('dashboardkadiv');
-            } elseif ($user->role === 'superadmin') {
-                return redirect('dashboardSuperadmin');
-            } elseif ($user->role === 'pegawai') {
-                return redirect('dashboardpegawai');
-            } else {
-                return redirect()->route('login')->withErrors('Role pengguna tidak valid')->withInput();
+            session(['uuid' => $user->uuid]);
+
+            switch ($user->role) {
+                case 'kadiv':
+                    return redirect()->intended('dashboardkadiv');
+                case 'superadmin':
+                    return redirect()->intended('dashboardSuperadmin');
+                case 'pegawai':
+                    return redirect()->intended('dashboardpegawai');
+                default:
+                    Auth::logout();
+                    return redirect()->route('login')->withErrors('Role pengguna tidak valid')->withInput();
             }
-        } else {
-            return redirect()->route('login')->withErrors('Username dan password tidak sesuai')->withInput();
         }
+
+        return back()->withErrors([
+            'username' => 'Username atau password tidak sesuai',
+        ])->onlyInput('username');
     }
 
 

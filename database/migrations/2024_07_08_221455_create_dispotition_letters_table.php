@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('dispotition_letters', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
             $table->unsignedBigInteger('letter_id');
             $table->unsignedBigInteger('user_id');
             $table->text('Tugas');

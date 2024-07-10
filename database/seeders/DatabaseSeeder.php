@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\CategoryArchiveIncomingLetter;
 use App\Models\CategoryArchiveOutgoingLetter;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 use App\Models\User;
 use App\Models\CategoryIncomingLetter;
 use App\Models\CategoryOutgoingLetter;
@@ -56,11 +57,13 @@ class DatabaseSeeder extends Seeder
 
         foreach ($categoriesincomingletter as $category) {
             CategoryIncomingLetter::query()->insert([
+                'uuid' => Str::uuid(),
                 'name_jenis_surat_masuk' => $category,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
         }
+
         $categoriesoutgoingletter = [
             'Surat Balasan Penerimaan PKL',
             'Surat Balasan Izin Penelitian',
@@ -72,34 +75,39 @@ class DatabaseSeeder extends Seeder
 
         foreach ($categoriesoutgoingletter as $category) {
             CategoryOutgoingLetter::query()->insert([
+                'uuid' => Str::uuid(),
                 'name_jenis_surat_keluar' => $category,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
         }
-        $categoriesincomingletter = [
+
+        $categoriesarchiveincomingletter = [
             'Arsip Surat Masuk Berguna',
             'Arsip Surat Masuk Penting',
             'Arsip Surat Masuk Vital',
             'Arsip Surat Masuk Dinamis',
         ];
 
-        foreach ($categoriesincomingletter as $category) {
+        foreach ($categoriesarchiveincomingletter as $category) {
             CategoryArchiveIncomingLetter::query()->insert([
+                'uuid' => Str::uuid(),
                 'name_jenis_arsip_surat_masuk' => $category,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
         }
-        $categoriesoutgoingletter = [
+
+        $categoriesarchiveoutgoingletter = [
             'Arsip Surat Keluar Berguna',
             'Arsip Surat Keluar Penting',
             'Arsip Surat Keluar Vital',
             'Arsip Surat Keluar Dinamis',
         ];
 
-        foreach ($categoriesoutgoingletter as $category) {
+        foreach ($categoriesarchiveoutgoingletter as $category) {
             CategoryArchiveOutgoingLetter::query()->insert([
+                'uuid' => Str::uuid(),
                 'name_jenis_arsip_surat_keluar' => $category,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -107,14 +115,15 @@ class DatabaseSeeder extends Seeder
         }
 
         $sifats = [
-            'Biasa',
-            'Rahasia',
-            'Segera',
-            'Sangat Segera'
-        ];
+                'Biasa',
+                'Rahasia',
+                'Segera',
+                'Sangat Segera'
+            ];
 
         foreach ($sifats as $sifat) {
             SifatIncomingLetter::query()->insert([
+                'uuid' => Str::uuid(),
                 'name_sifat' => $sifat,
                 'created_at' => now(),
                 'updated_at' => now(),

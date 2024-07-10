@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('archive_incoming_letters', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
             $table->unsignedBigInteger('letter_incoming_id');
             $table->string('kode_arsip_incoming');
             $table->foreign('letter_incoming_id')->references('id')->on('incoming_letters')->onDelete('cascade');

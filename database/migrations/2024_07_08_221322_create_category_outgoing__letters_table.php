@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('category_outgoing_letters', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
             $table->string('name_jenis_surat_keluar');
             $table->dateTime('created_at')->nullable()->useCurrent();
             $table->integer('created_by')->nullable()->index();
