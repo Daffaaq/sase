@@ -8,7 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons/css/all/all.min.css">
-    <title>Login</title>
+    <title>Kirim Surat</title>
     <style>
         body,
         html {
@@ -202,8 +202,8 @@
                     </div>
                     <div class="mb-3 input-group">
                         <span class="input-group-text"><i class="fi fi-rr-input-numeric"></i></span>
-                        <input type="text" class="form-control" id="no_surat" name="no_surat" placeholder="no_surat"
-                            required autocomplete="off">
+                        <input type="text" class="form-control" id="nomer_surat_masuk" name="nomer_surat_masuk"
+                            placeholder="Nomer Surat Masuk" required autocomplete="off">
                     </div>
                     <div class="mb-3 input-group">
                         <span class="input-group-text"><i class="fi fi-rr-text"></i></span>
@@ -212,8 +212,26 @@
                     </div>
                     <div class="mb-3 input-group">
                         <span class="input-group-text"><i class="fi fi-rr-file-upload"></i></span>
-                        <input type="file" class="form-control" id="file" name="file" placeholder="file"
-                            required autocomplete="off">
+                        <input type="file" class="form-control" id="file" name="file" required
+                            autocomplete="off">
+                    </div>
+                    <div class="mb-3 input-group">
+                        <span class="input-group-text"><i class="fi fi-rr-list"></i></span>
+                        <select class="form-control" id="category_surat_id" name="category_surat_id" required>
+                            <option value="" disabled selected>Pilih Kategori Surat</option>
+                            @foreach ($category_surat as $category)
+                                <option value="{{ $category->id }}">{{ $category->name_jenis_surat_masuk }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-3 input-group">
+                        <span class="input-group-text"><i class="fi fi-rr-list"></i></span>
+                        <select class="form-control" id="sifat_surat_id" name="sifat_surat_id" required>
+                            <option value="" disabled selected>Pilih Sifat Surat</option>
+                            @foreach ($sifat_surat as $sifat)
+                                <option value="{{ $sifat->id }}">{{ $sifat->name_sifat }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="progress mb-3" style="height: 20px; display: none;">
                         <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
@@ -275,7 +293,6 @@
     </div>
 
     <!-- Panel for Steps -->
-    <!-- Panel for Steps -->
     <div id="stepsPanel" class="steps-panel">
         <h5 class="text-center">Langkah-langkah Pengiriman Surat</h5>
         <hr>
@@ -292,7 +309,6 @@
         </ol>
         <button type="button" class="btn btn-secondary mt-3 w-100" id="closeStepsPanel">Close</button>
     </div>
-
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.js"></script>
@@ -373,10 +389,16 @@
                     no_telp_pengirim: {
                         required: true,
                     },
-                    no_surat: {
+                    nomer_surat_masuk: {
                         required: true
                     },
                     file: {
+                        required: true
+                    },
+                    category_surat_id: {
+                        required: true
+                    },
+                    sifat_surat_id: {
                         required: true
                     }
                 },
@@ -394,11 +416,17 @@
                     no_telp_pengirim: {
                         required: "Nomor telepon pengirim is required",
                     },
-                    no_surat: {
+                    nomer_surat_masuk: {
                         required: "Nomor surat is required"
                     },
                     file: {
                         required: "File is required"
+                    },
+                    category_surat_id: {
+                        required: "Kategori surat is required"
+                    },
+                    sifat_surat_id: {
+                        required: "Sifat surat is required"
                     }
                 },
                 errorPlacement: function(error, element) {

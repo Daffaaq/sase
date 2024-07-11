@@ -26,13 +26,13 @@ class sendEmail extends Mailable
     public function build()
     {
         return $this->view('Guest.emailkirim')
-        ->subject('Pengiriman Surat')
-        ->with([
-            'nama_pengirim' => $this->surat['nama_pengirim'],
-            'instansi_pengirim' => $this->surat['instansi_pengirim'],
-            'no_telp_pengirim' => $this->surat['no_telp_pengirim'],
-            'deskripsi_surat' => $this->surat['deskripsi_surat'],
-            'no_surat' => $this->surat['no_surat']
-        ]);
+            ->subject('Pengiriman Surat')
+            ->with([
+                'nama_pengirim' => $this->surat['nama_pengirim'],
+                'instansi_pengirim' => $this->surat['instansi_pengirim'],
+                'no_telp_pengirim' => $this->surat['no_telp_pengirim'],
+                'deskripsi_surat' => $this->surat['deskripsi_surat'],
+                'nomer_surat_masuk' => $this->surat['nomer_surat_masuk']
+            ]);
     }
 }

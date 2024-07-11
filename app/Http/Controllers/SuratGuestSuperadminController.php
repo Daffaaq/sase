@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Mail\SendEmail;
+use App\Models\CategoryIncomingLetter;
 use App\Models\IncomingLetter;
+use App\Models\SifatIncomingLetter;
 use Illuminate\Support\Str;
 use App\Models\Surat;
 use Yajra\DataTables\DataTables;
@@ -15,29 +17,59 @@ class SuratGuestSuperadminController extends Controller
 {
     public function viewform()
     {
-        return view('Guest.kirim_surat');
+        $sifat_surat = SifatIncomingLetter::all();
+        $category_surat = CategoryIncomingLetter::all();
+        return view('Guest.kirim_surat', compact('sifat_surat', 'category_surat'));
     }
+
     public function sendSurat(Request $request)
     {
+        $request->validate([
+            'nama_pengirim' => 'required|string',
+            'email_pengirim' => 'required|email',
+            'instansi_pengirim' => 'required|string',
+            'no_telp_pengirim' => 'required|string',
+            'deskripsi_surat' => 'required|string',
+            'nomer_surat_masuk' => 'required|string',
+            'file' => 'required|file|mimes:pdf,doc,docx',
+            'sifat_surat_id' => 'required|exists:sifat_incoming_letters,id',
+            'category_surat_id' => 'required|exists:category_incoming_letters,id',
+        ]);
+
+        $file = $request->file('file');
+        $path = $file->store('public/files');
+
+        $surat = IncomingLetter::create([
+            'nomer_surat_masuk' => $request->nomer_surat_masuk,
+            'nomer_surat_masuk_idx' => $this->generateNoSuratIdx(),
+            'tanggal_surat_masuk' => now(),
+            'nama_pengirim' => $request->nama_pengirim,
+            'email_pengirim' => $request->email_pengirim,
+            'keterangan' => $request->deskripsi_surat,
+            'file' => $path,
+            'category_surat_id' => $request->category_surat_id,
+            'sifat_surat_id' => $request->sifat_surat_id,
+            'status' => 'Pending',
+            'disposition_status' => 'pending',
+            'created_by' => auth()->id(),
+            'updated_by' => auth()->id(),
+        ]);
+
+        Mail::to($request->email_pengirim)->send(new SendEmail($request->all()));
+
+        return back()->with('success', 'Surat berhasil dikirim!');
     }
 
     private function generateNoSuratIdx()
     {
-        // Mendapatkan nomor urut terakhir dari database dan meningkatkannya
         $latestSurat = IncomingLetter::orderBy('created_at', 'desc')->first();
-        $latestNoSuratIdx = $latestSurat ? (int)substr($latestSurat->no_surat_idx, 0, 4) : 0;
+        $latestNoSuratIdx = $latestSurat ? (int)substr($latestSurat->nomer_surat_masuk_idx, 0, 4) : 0;
         $newNoSuratIdx = str_pad($latestNoSuratIdx + 1, 4, '0', STR_PAD_LEFT);
 
-        // Menghasilkan bagian tetap dari nomor surat
-        $fixedPart = 'SOT';
-
-        // Mendapatkan bulan dalam angka Romawi
+        $fixedPart = 'SIN';
         $monthRoman = $this->convertToRoman(now()->month);
-
-        // Mendapatkan tahun saat ini
         $year = now()->year;
 
-        // Menggabungkan bagian-bagian tersebut menjadi nomor surat lengkap
         return "{$newNoSuratIdx}/{$fixedPart}/{$monthRoman}/{$year}";
     }
 
@@ -46,7 +78,7 @@ class SuratGuestSuperadminController extends Controller
         $map = [
             1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV',
             5 => 'V', 6 => 'VI', 7 => 'VII', 8 => 'VIII',
-            9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII'
+            9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII',
         ];
         return $map[$month];
     }
