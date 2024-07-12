@@ -46,16 +46,34 @@ class DatabaseSeeder extends Seeder
             'status' => 'aktif',
         ]);
 
-        $categoriesincomingletter = [
+        $categoriesIncomingLetter = [
             'Surat Penerimaan PKL',
             'Surat Izin Penelitian',
             'Surat Permohonan',
             'Surat Perintah',
             'Surat Pengantar',
-            'Surat Edaran'
+            'Surat Edaran',
+            'Surat Undangan',
+            'Surat Keputusan',
+            'Surat Kuasa',
+            'Surat Pemberitahuan',
+            'Surat Tugas',
+            'Surat Keterangan',
+            'Surat Penawaran',
+            'Surat Keberatan',
+            'Surat Perjanjian',
+            'Surat Pengunduran Diri',
+            'Surat Pernyataan',
+            'Surat Panggilan',
+            'Surat Izin Cuti',
+            'Surat Kritik',
+            'Surat Resmi',
+            'Surat Informasi',
+            'Surat Saran',
+            'Surat Pemberitahuan Rapat',
         ];
 
-        foreach ($categoriesincomingletter as $category) {
+        foreach ($categoriesIncomingLetter as $category) {
             CategoryIncomingLetter::query()->insert([
                 'uuid' => Str::uuid(),
                 'name_jenis_surat_masuk' => $category,
@@ -63,6 +81,7 @@ class DatabaseSeeder extends Seeder
                 'updated_at' => now(),
             ]);
         }
+
 
         $categoriesoutgoingletter = [
             'Surat Balasan Penerimaan PKL',
@@ -115,11 +134,11 @@ class DatabaseSeeder extends Seeder
         }
 
         $sifats = [
-                'Biasa',
-                'Rahasia',
-                'Segera',
-                'Sangat Segera'
-            ];
+            'Biasa',
+            'Rahasia',
+            'Segera',
+            'Sangat Segera'
+        ];
 
         foreach ($sifats as $sifat) {
             SifatIncomingLetter::query()->insert([

@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\CategoryArchiveIncomingController;
+use App\Http\Controllers\CategoryArchiveOutgoingController;
 use App\Http\Controllers\CategoryIncomingLetterController;
 use App\Http\Controllers\CategoryOutgoingLetterController;
 use App\Http\Controllers\DashboardController;
@@ -67,6 +69,14 @@ Route::middleware(['auth', 'checkStatus:aktif', 'checkRole:superadmin', 'check.u
     Route::prefix('/dashboardSuperadmin')->group(function () {
         Route::resource('/Kategori-Surat-Keluar', CategoryOutgoingLetterController::class);
         Route::post('/Kategori-Surat-Keluar/list', [CategoryOutgoingLetterController::class, 'list'])->name('kategori-surat-keluar-list');
+    });
+    Route::prefix('/dashboardSuperadmin')->group(function () {
+        Route::resource('/Kategori-Arsip-Surat-Masuk', CategoryArchiveIncomingController::class);
+        Route::post('/Kategori-Arsip-Surat-Masuk/list', [CategoryArchiveIncomingController::class, 'list'])->name('kategori-arsip-surat-masuk-list');
+    });
+    Route::prefix('/dashboardSuperadmin')->group(function () {
+        Route::resource('/Kategori-Arsip-Surat-Keluar', CategoryArchiveOutgoingController::class);
+        Route::post('/Kategori-Arsip-Surat-Keluar/list', [CategoryArchiveOutgoingController::class, 'list'])->name('kategori-arsip-surat-keluar-list');
     });
 });
 
