@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\CategoryIncomingLetterController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ManajemenUserController;
 use App\Http\Controllers\SuratAllSuperadminController;
@@ -53,34 +54,14 @@ Route::middleware(['auth', 'checkStatus:aktif', 'checkRole:superadmin', 'check.u
         Route::get('/Users', [ManajemenUserController::class, 'index'])->name('manajemen-user-index');
         Route::get('/Users/create', [ManajemenUserController::class, 'create']);
         Route::post('/Users/store', [ManajemenUserController::class, 'store'])->name('manajemen-user-store');
-        // Route::get('/Users/edit/{id}', [ManajemenUserController::class, 'edit']);
-        // Route::put('/Users/update/{id}', [ManajemenUserController::class, 'update']);
-        // Route::delete('/Users/destroy/{id}', [ManajemenUserController::class, 'destroy']);
         Route::get('/Users/edit/{uuid}', [ManajemenUserController::class, 'edit']);
         Route::put('/Users/update/{uuid}', [ManajemenUserController::class, 'update']);
         Route::delete('/Users/destroy/{uuid}', [ManajemenUserController::class, 'destroy']);
         Route::post('Users/list', [ManajemenUserController::class, 'list'])->name('users.list');
     });
     Route::prefix('/dashboardSuperadmin')->group(function () {
-        Route::get('/surat-internal', [SuratSuperadminController::class, 'index'])->name('manajemen-letter-in-index');
-        Route::get('/surat-internal/create', [SuratSuperadminController::class, 'create']);
-        Route::post('/surat-internal/storeinternal', [SuratSuperadminController::class, 'storeSuratInternal'])->name('manajemen-letter-internal-store');
-        Route::get('/surat-internal/edit/{id}', [SuratSuperadminController::class, 'editSuratInternal']);
-        Route::put('/surat-internal/update/{id}', [SuratSuperadminController::class, 'updateSuratInternal'])->name('manajemen-letter-internal-update');
-        Route::delete('/surat-internal/destroy/{id}', [SuratSuperadminController::class, 'destroy']);
-        Route::post('surat-internal/list', [SuratSuperadminController::class, 'list'])->name('sin.list');
-    });
-    Route::prefix('/dashboardSuperadmin')->group(function () {
-        Route::get('/surat-all', [SuratAllSuperadminController::class, 'index'])->name('manajemen-letter-index');
-        Route::post('surat-all/list', [SuratAllSuperadminController::class, 'list'])->name('sin.all.list');
-    });
-    Route::prefix('/dashboardSuperadmin')->group(function () {
-        Route::get('/surat-masuk', [SuratGuestSuperadminController::class, 'index'])->name('manajemen-letter-masuk-index');
-        Route::post('surat-masuk/list', [SuratGuestSuperadminController::class, 'list'])->name('sot.list');
-    });
-    Route::prefix('/dashboardSuperadmin')->group(function () {
-        Route::get('/fetch-pegawai', [SuratPegawaiSuperadminController::class, 'fetchPegawai'])->name('fetch.pegawai');
-        Route::post('surat-masuk/list', [SuratGuestSuperadminController::class, 'list'])->name('sot.list');
+        Route::resource('/Kategori-Surat-Masuk', CategoryIncomingLetterController::class);
+        Route::post('/Kategori-Surat-Masuk/list', [CategoryIncomingLetterController::class, 'list'])->name('kategori-surat-masuk-list');
     });
 });
 

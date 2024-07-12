@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ManajemenUserStoreRequest;
+use App\Http\Requests\ManajemenUserUpdateRequest;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -131,12 +132,14 @@ class ManajemenUserController extends Controller
 
     //     return response()->json(['message' => 'User updated successfully.', 'user' => $user], 200);
     // }
-    public function update(Request $request, string $uuid)
+    public function update(ManajemenUserUpdateRequest $request, string $uuid)
     {
         $user = User::where('uuid', $uuid)->first();
 
         if (!$user) {
-            return response()->json(['message' => 'User not found.'], 404);
+            return response()->json(['message' => 'User not found.'],
+                404
+            );
         }
 
         $user->update([

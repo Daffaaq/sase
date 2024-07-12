@@ -55,10 +55,125 @@
         </div>
     </div>
 
-    @include('Superadmin.Manajemen-User.create')
-    @include('Superadmin.Manajemen-User.confirm')
-    @include('Superadmin.Manajemen-User.error')
+   <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userModalLabel">Create User</h5>
+                <button type="button" id="closemodal" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="userForm" action="{{ route('manajemen-user-store') }}" method="POST">
+                    @csrf
+                    <div id="success-message" class="alert alert-success" style="display:none;">Data Berhasil Dikirim</div>
+                    <div id="error-message" class="alert alert-danger" style="display:none;"></div>
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Nama Pengguna</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email Pengguna</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="role" class="form-label">Role Pengguna</label>
+                        <select class="form-select" id="role" name="role" required>
+                            <option value="superadmin">Superadmin</option>
+                            <option value="kadiv">Kadiv</option>
+                            <option value="pegawai">Pegawai</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Status Pengguna</label>
+                        <select class="form-select" id="status" name="status" required>
+                            <option value="aktif">Aktif</option>
+                            <option value="nonaktif">Nonaktif</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">Confirm Delete</h5>
+                <button type="button" id="closeConfirmModal" class="btn-close" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="delete-success-message" class="alert alert-success" style="display:none;">Data Berhasil Dihapus
+                </div>
+                <p>Are you sure you want to delete this user?</p>
+                <p><strong>Name:</strong> <span id="deleteUserName"></span></p>
+                <p><strong>Email:</strong> <span id="deleteUserEmail"></span></p>
+                <p><strong>Username:</strong> <span id="deleteUserUsername"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="cancelDelete" class="btn btn-secondary"
+                    data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Error Modal -->
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="errorModalLabel">Error</h5>
+                <button type="button" id="closeErrorModal" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <p id="errorMessageContent" class="fw-bold">AKSES DIBATASI.</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" id="closeErrorModalFooter" class="btn btn-secondary"
+                    data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom CSS for the Modal -->
+<style>
+    .modal-header.bg-danger {
+        background-color: #dc3545;
+    }
+
+    .btn-close-white {
+        filter: invert(1);
+    }
+
+    .modal-body .alert {
+        margin-bottom: 1rem;
+    }
+
+    .modal-body p {
+        font-size: 1.1rem;
+        color: #dc3545;
+    }
+
+    .modal-footer .btn {
+        padding: 0.5rem 2rem;
+    }
+</style>
     <script>
         $(document).ready(function() {
             var dataMaster = $('#usersTable').DataTable({
