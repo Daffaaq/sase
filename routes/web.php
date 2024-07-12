@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CategoryIncomingLetterController;
+use App\Http\Controllers\CategoryOutgoingLetterController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ManajemenUserController;
 use App\Http\Controllers\SuratAllSuperadminController;
@@ -62,6 +63,10 @@ Route::middleware(['auth', 'checkStatus:aktif', 'checkRole:superadmin', 'check.u
     Route::prefix('/dashboardSuperadmin')->group(function () {
         Route::resource('/Kategori-Surat-Masuk', CategoryIncomingLetterController::class);
         Route::post('/Kategori-Surat-Masuk/list', [CategoryIncomingLetterController::class, 'list'])->name('kategori-surat-masuk-list');
+    });
+    Route::prefix('/dashboardSuperadmin')->group(function () {
+        Route::resource('/Kategori-Surat-Keluar', CategoryOutgoingLetterController::class);
+        Route::post('/Kategori-Surat-Keluar/list', [CategoryOutgoingLetterController::class, 'list'])->name('kategori-surat-keluar-list');
     });
 });
 

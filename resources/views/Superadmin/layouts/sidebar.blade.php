@@ -40,14 +40,14 @@
             </li>
 
             <li
-                class="nav-item {{ Request::routeIs('Kategori-Surat-Masuk.index', 'manajemen-letter-masuk-index', 'manajemen-letter-in-index') ? 'active' : '' }}">
+                class="nav-item {{ Request::routeIs('Kategori-Surat-Masuk.index', 'Kategori-Surat-Keluar', 'manajemen-letter-in-index') ? 'active' : '' }}">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
                     aria-expanded="true" aria-controls="collapseTwo">
                     <i class="fas fa-fw fa-list"></i>
                     <span>Category Surat</span>
                 </a>
                 <div id="collapseTwo"
-                    class="collapse {{ Request::routeIs('Kategori-Surat-Masuk.index', 'manajemen-letter-masuk-index', 'manajemen-letter-in-index') ? 'show' : '' }}"
+                    class="collapse {{ Request::routeIs('Kategori-Surat-Masuk.index', 'Kategori-Surat-Keluar', 'manajemen-letter-in-index') ? 'show' : '' }}"
                     aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Custom Category Surat:</h6>
@@ -55,7 +55,8 @@
                             href="{{ route('Kategori-Surat-Masuk.index') }}">
                             <i class="fas fa-minus"></i> Surat Masuk
                         </a>
-                        <a class="collapse-item" href="cards.html">
+                        <a class="collapse-item" {{ Request::routeIs('Kategori-Surat-Keluar.index') ? 'active' : '' }}"
+                            href="{{ route('Kategori-Surat-Keluar.index') }}">
                             <i class="fas fa-minus"></i> Surat Keluar
                         </a>
                         <a class="collapse-item" href="cards.html">
