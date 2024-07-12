@@ -45,16 +45,20 @@ class ManajemenUserController extends Controller
      */
     public function store(ManajemenUserStoreRequest $request)
     {
-        $user = User::create([
-            'name' => $request->name,
-            'username' => $request->username,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => $request->role,
-            'status' => $request->status,
-        ]);
+        try {
+            $user = User::create([
+                'name' => $request->name,
+                'username' => $request->username,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'role' => $request->role,
+                'status' => $request->status,
+            ]);
 
-        return response()->json(['message' => 'User created successfully.', 'user' => $user], 200);
+            return response()->json(['message' => 'User created successfully.', 'user' => $user], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to create user.', 'error' => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -134,25 +138,28 @@ class ManajemenUserController extends Controller
     // }
     public function update(ManajemenUserUpdateRequest $request, string $uuid)
     {
-        $user = User::where('uuid', $uuid)->first();
+        try {
+            $user = User::where('uuid', $uuid)->first();
 
-        if (!$user) {
-            return response()->json(['message' => 'User not found.'],
-                404
-            );
+            if (!$user) {
+                return response()->json(['message' => 'User not found.'], 404);
+            }
+
+            $user->update([
+                'name' => $request->name,
+                'username' => $request->username,
+                'email' => $request->email,
+                'password' => $request->password ? Hash::make($request->password) : $user->password,
+                'role' => $request->role,
+                'status' => $request->status,
+            ]);
+
+            return response()->json(['message' => 'User updated successfully.', 'user' => $user], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to update user.', 'error' => $e->getMessage()], 500);
         }
-
-        $user->update([
-            'name' => $request->name,
-            'username' => $request->username,
-            'email' => $request->email,
-            'password' => $request->password ? Hash::make($request->password) : $user->password,
-            'role' => $request->role,
-            'status' => $request->status,
-        ]);
-
-        return response()->json(['message' => 'User updated successfully.', 'user' => $user], 200);
     }
+
 
 
     /**

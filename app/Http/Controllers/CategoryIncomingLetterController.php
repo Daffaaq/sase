@@ -29,10 +29,14 @@ class CategoryIncomingLetterController extends Controller
 
     public function store(StoreCategoryIncomingLetterRequest $request)
     {
-        $category = CategoryIncomingLetter::create($request->validated());
-
-        return response()->json(['message' => 'Category created successfully.', 'category' => $category], 201);
+        try {
+            $category = CategoryIncomingLetter::create($request->validated());
+            return response()->json(['message' => 'Category created successfully.', 'category' => $category], 201);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to create category.', 'error' => $e->getMessage()], 500);
+        }
     }
+
 
     public function edit($uuid)
     {
@@ -45,14 +49,18 @@ class CategoryIncomingLetterController extends Controller
 
     public function update(UpdateCategoryIncomingLetterRequest $request, $uuid)
     {
-        $category = CategoryIncomingLetter::where('uuid', $uuid)->first();
-        if (!$category) {
-            return response()->json(['error' => true, 'message' => 'Category not found.'], 404);
+        try {
+            $category = CategoryIncomingLetter::where('uuid', $uuid)->first();
+            if (!$category) {
+                return response()->json(['error' => true, 'message' => 'Category not found.'], 404);
+            }
+
+            $category->update($request->validated());
+
+            return response()->json(['message' => 'Category updated successfully.', 'category' => $category], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to update category.', 'error' => $e->getMessage()], 500);
         }
-
-        $category->update($request->validated());
-
-        return response()->json(['message' => 'Category updated successfully.', 'category' => $category], 200);
     }
 
     public function destroy($uuid)
