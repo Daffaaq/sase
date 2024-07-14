@@ -1,4 +1,4 @@
-@extends('Superadmin.layouts.index')
+@extends('Superadmin.new_layouts.main')
 
 @section('container')
     @if (session('info'))
@@ -180,11 +180,11 @@
                         searchable: false,
                         render: function(data, type, row, meta) {
                             return `
-                                <button data-uuid="${row.uuid}" class="btn btn-xs btn-warning editCategoryBtn">
-                                    <i class="fa fa-edit"></i>
+                                <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-warning editCategoryBtn">
+                                    <i class="bi bi-pencil"></i>
                                 </button>
-                                <button data-uuid="${row.uuid}" data-name="${row.name_jenis_arsip_surat_masuk}" class="btn btn-xs btn-danger deleteCategoryBtn">
-                                    <i class="fa fa-trash"></i>
+                                <button data-uuid="${row.uuid}" data-name="${row.name_jenis_arsip_surat_masuk}" class="btn icon btn-sm btn-danger deleteCategoryBtn">
+                                    <i class="bi bi-trash"></i>
                                 </button>`;
                         }
                     }
