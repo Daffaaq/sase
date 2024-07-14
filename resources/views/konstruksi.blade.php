@@ -112,7 +112,7 @@
         }
 
         .construction-image {
-            max-width: 100%;
+            max-width: 50%;
             height: auto;
             margin-bottom: 20px;
         }
@@ -134,8 +134,7 @@
                 <h5>Our website is currently undergoing scheduled maintenance.</h5>
             </div>
             <div class="card-body">
-                <img id="construction-image" src="{{ asset('SbAdmin/img/construction-1.png') }}"
-                    alt="Under Construction" class="construction-image">
+                <img id="construction-image" src="" alt="Under Construction" class="construction-image">
                 <p class="construction-message">We apologize for any inconvenience. Please check back later.</p>
                 <a href="{{ route('login-email') }}" class="btn btn-primary">Go to Homepage</a>
             </div>
@@ -154,10 +153,9 @@
     <script>
         $(document).ready(function() {
             const images = [
-                "{{ asset('SbAdmin/img/construction-1.png') }}",
-                "{{ asset('SbAdmin/img/construction-2.png') }}",
-                "{{ asset('SbAdmin/img/construction-3.png') }}",
-                "{{ asset('SbAdmin/img/construction-4.png') }}"
+                "{{ asset('404-505-uc/img-uc/uc-1.png') }}",
+                "{{ asset('404-505-uc/img-uc/uc-2.png') }}",
+                "{{ asset('404-505-uc/img-uc/uc-3.png') }}"
             ];
             const randomImage = images[Math.floor(Math.random() * images.length)];
             $('#construction-image').attr('src', randomImage);

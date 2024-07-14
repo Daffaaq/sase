@@ -153,10 +153,10 @@
     <script>
         $(document).ready(function() {
             const images = [
-                "{{ asset('SbAdmin/img/404-1.png') }}",
-                "{{ asset('SbAdmin/img/404-2.png') }}",
-                "{{ asset('SbAdmin/img/404-3.png') }}",
-                "{{ asset('SbAdmin/img/404-4.png') }}"
+                "{{ asset('404-505-uc/img-404/404-1.png') }}",
+                "{{ asset('404-505-uc/img-404/404-2.png') }}",
+                "{{ asset('404-505-uc/img-404/404-3.png') }}",
+                "{{ asset('404-505-uc/img-404/404-4.png') }}"
             ];
             const randomImage = images[Math.floor(Math.random() * images.length)];
             $('#error-image').attr('src', randomImage);

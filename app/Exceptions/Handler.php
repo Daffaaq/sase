@@ -5,6 +5,8 @@ namespace App\Exceptions;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class Handler extends ExceptionHandler
 {
@@ -33,13 +35,26 @@ class Handler extends ExceptionHandler
     {
         if ($this->isHttpException($exception)) {
             $statusCode = $exception->getStatusCode();
-            if ($statusCode == 404) {
-                return response()->view('Error-Template.404', [], 404);
-            }
-            if ($statusCode == 500) {
-                return response()->view('Error-Template.500', [], 500);
+
+            if (Auth::check()) {
+                Log::info('User is logged in');
+                if ($statusCode == 404) {
+                    return response()->view('Error-Template.404-login', [], 404);
+                }
+                if ($statusCode == 500) {
+                    return response()->view('Error-Template.500', [], 500);
+                }
+            } else {
+                Log::info('User is not logged in');
+                if ($statusCode == 404) {
+                    return response()->view('Error-Template.404', [], 404);
+                }
+                if ($statusCode == 500) {
+                    return response()->view('Error-Template.500', [], 500);
+                }
             }
         }
+
         return parent::render($request, $exception);
     }
 }
