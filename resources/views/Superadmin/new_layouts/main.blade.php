@@ -165,13 +165,18 @@
     <script src="{{ asset('assets/static/js/pages/dashboard.js') }}"></script>
     <script>
         $(document).ready(function() {
+            // Function to load page content via AJAX
             function loadPage(url) {
                 $.ajax({
                     url: url,
                     type: 'GET',
                     success: function(data) {
+                        // Update the main content with loaded content
                         $('#main').html($(data).find('#main').html());
+                        // Update the URL in the browser address bar
                         window.history.pushState({}, '', url);
+                        // Update active state for sidebar based on loaded page
+                        updateSidebar(url);
                     },
                     error: function(xhr) {
                         console.log("Error loading page");
@@ -179,22 +184,42 @@
                 });
             }
 
+            // Function to update sidebar active state
+            function updateSidebar(url) {
+                // Remove active class from all sidebar items
+                $('.sidebar-item').removeClass('active');
+                $('.submenu-item').removeClass('active');
+
+                // Add active class to sidebar item corresponding to the current URL
+                $('.sidebar-link[href="' + url + '"]').closest('.sidebar-item').addClass('active');
+                $('.submenu-link[href="' + url + '"]').closest('.submenu-item').addClass('active');
+            }
+
+            // Handle sidebar link clicks
             $(document).on('click', '.sidebar-link, .submenu-link', function(e) {
                 if ($(this).hasClass('logout-link')) {
                     // If the link is the logout link, don't use AJAX
                     return true;
                 }
-
+                // Prevent default link behavior
                 e.preventDefault();
+                // Get the URL from the link
                 var url = $(this).attr('href');
+                // Load the page content via AJAX
                 loadPage(url);
             });
 
+            // Handle back/forward browser navigation
             window.addEventListener('popstate', function() {
+                // Load the page content based on current URL
                 loadPage(location.pathname);
             });
+
+            // Initial update of sidebar based on current URL
+            updateSidebar(location.pathname);
         });
     </script>
+
 </body>
 
 </html>
