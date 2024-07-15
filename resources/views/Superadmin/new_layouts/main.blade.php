@@ -141,7 +141,7 @@
                         <li class="sidebar-item">
                             <a href="#"
                                 onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-                                class="sidebar-link">
+                                class="sidebar-link logout-link">
                                 <i class="bi bi-box-arrow-left"></i>
                                 <span>Log Out</span>
                             </a>
@@ -180,6 +180,11 @@
             }
 
             $(document).on('click', '.sidebar-link, .submenu-link', function(e) {
+                if ($(this).hasClass('logout-link')) {
+                    // If the link is the logout link, don't use AJAX
+                    return true;
+                }
+
                 e.preventDefault();
                 var url = $(this).attr('href');
                 loadPage(url);
