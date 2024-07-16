@@ -175,6 +175,8 @@
                         $('#main').html($(data).find('#main').html());
                         // Update the URL in the browser address bar
                         window.history.pushState({}, '', url);
+                        // Save active URL to localStorage
+                        localStorage.setItem('activeSidebarUrl', url);
                         // Update active state for sidebar based on loaded page
                         updateSidebar(url);
                     },
@@ -215,8 +217,12 @@
                 loadPage(location.pathname);
             });
 
-            // Initial update of sidebar based on current URL
-            updateSidebar(location.pathname);
+            // Initial update of sidebar based on current URL or localStorage
+            var initialUrl = localStorage.getItem('activeSidebarUrl') || location.pathname;
+            updateSidebar(initialUrl);
+            if (initialUrl !== location.pathname) {
+                loadPage(initialUrl);
+            }
         });
     </script>
 
