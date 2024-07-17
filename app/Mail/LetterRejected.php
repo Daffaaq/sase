@@ -24,7 +24,7 @@ class LetterRejected extends Mailable
 
     public function build()
     {
-        return $this->view('emails.letterRejected')
+        return $this->view('Guest.letterRejected')
         ->with([
             'nama_pengirim' => $this->letter->nama_pengirim,
             'nomer_surat_masuk' => $this->letter->nomer_surat_masuk,

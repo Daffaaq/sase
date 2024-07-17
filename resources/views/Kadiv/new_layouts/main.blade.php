@@ -104,7 +104,7 @@
                             </ul>
                         </li>
                         <li class="sidebar-item">
-                            <a href="index.html" class="sidebar-link">
+                            <a href="{{ route('surat-masuk-index-kadiv') }}" class="sidebar-link">
                                 <i class="bi bi-envelope-paper"></i>
                                 <span>Surat Masuk</span>
                             </a>

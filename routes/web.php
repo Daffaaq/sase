@@ -13,6 +13,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ManajemenUserController;
 use App\Http\Controllers\SuratAllSuperadminController;
 use App\Http\Controllers\SuratGuestSuperadminController;
+use App\Http\Controllers\SuratMasukKadivController;
 use App\Http\Controllers\SuratPegawaiSuperadminController;
 use App\Http\Controllers\SuratSuperadminController;
 use Illuminate\Support\Facades\Route;
@@ -69,6 +70,12 @@ Route::middleware(['auth', 'checkStatus:aktif', 'checkRole:kadiv', 'check.uuid']
     Route::prefix('/dashboardkadiv')->group(function () {
         Route::resource('/Kategori-Arsip-Surat-Out-Kadiv', CatgeoryArchiveOutgoingKadivController::class);
         Route::post('/Kategori-Arsip-Surat-Out-Kadiv/list', [CatgeoryArchiveOutgoingKadivController::class, 'list'])->name('kategori-arsip-surat-keluar-list-kadiv');
+    });
+    Route::prefix('/dashboardkadiv')->group(function () {
+        Route::get('/Surat-Masuk', [SuratMasukKadivController::class, 'index'])->name('surat-masuk-index-kadiv');
+        Route::post('/Surat-Masuk/{uuid}/accept', [SuratMasukKadivController::class, 'accepted'])->name('surat-masuk.accept.kadiv');
+        Route::post('/Surat-Masuk/{uuid}/reject', [SuratMasukKadivController::class, 'rejected'])->name('surat-masuk.reject.kadiv');
+        Route::post('/Surat-Masuk/list', [SuratMasukKadivController::class, 'list'])->name('surat-masuk-list-kadiv');
     });
 });
 

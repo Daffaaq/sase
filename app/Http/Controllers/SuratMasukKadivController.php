@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Mail\LetterAccepted;
 use App\Mail\LetterRejected;
+use App\Models\CategoryIncomingLetter;
 use App\Models\IncomingLetter;
+use App\Models\SifatIncomingLetter;
 use Illuminate\Support\Facades\Mail;
 use Yajra\DataTables\DataTables;
 use Illuminate\Http\Request;
@@ -16,13 +18,24 @@ class SuratMasukKadivController extends Controller
      */
     public function index()
     {
-        return view('Kadiv.Surat-Masuk.index');
+        $sifats = SifatIncomingLetter::all(); // Sesuaikan dengan model yang digunakan
+        $categories = CategoryIncomingLetter::all(); // Sesuaikan dengan model yang digunakan
+        return view('Kadiv.Surat-Masuk.index', compact('sifats', 'categories'));
     }
 
     public function list(Request $request)
     {
         if ($request->ajax()) {
-            $data = IncomingLetter::select('uuid', 'nomer_surat_masuk', 'nomer_surat_masuk_idx', 'tanggal_surat_masuk');
+            $data = IncomingLetter::with('category', 'sifat')->select('uuid', 'nomer_surat_masuk', 'nomer_surat_masuk_idx', 'tanggal_surat_masuk', 'sifat_surat_id', 'category_surat_id', 'status', 'disposition_status');
+            if ($request->sifat) {
+                $data->where('sifat_surat_id', $request->sifat);
+            }
+
+            if ($request->kategori) {
+                $data->where('category_surat_id', $request->kategori);
+            }
+
+            $data = $data->get();
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->make(true);
