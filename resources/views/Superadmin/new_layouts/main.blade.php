@@ -140,7 +140,7 @@
                         <!-- Other Sidebar Items -->
                         <li class="sidebar-item">
                             <a href="#"
-                                onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+                                onclick="event.preventDefault(); localStorage.removeItem('activeSidebarUrl'); document.getElementById('logout-form').submit();"
                                 class="sidebar-link logout-link">
                                 <i class="bi bi-box-arrow-left"></i>
                                 <span>Log Out</span>

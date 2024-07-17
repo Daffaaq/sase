@@ -4,7 +4,11 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CategoryArchiveIncomingController;
 use App\Http\Controllers\CategoryArchiveOutgoingController;
 use App\Http\Controllers\CategoryIncomingLetterController;
+use App\Http\Controllers\CategoryOutgoingKadivController;
 use App\Http\Controllers\CategoryOutgoingLetterController;
+use App\Http\Controllers\CatgeoryArchiveIncomingKadivController;
+use App\Http\Controllers\CatgeoryArchiveOutgoingKadivController;
+use App\Http\Controllers\CatgeoryIncomingKadivController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ManajemenUserController;
 use App\Http\Controllers\SuratAllSuperadminController;
@@ -48,7 +52,24 @@ Route::middleware(['guest'])->group(function () {
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::middleware(['auth', 'checkStatus:aktif', 'checkRole:kadiv', 'check.uuid'])->group(function () {
-    Route::get('/dashboardkadiv', [DashboardController::class, 'indexKadiv']);
+    Route::get('/dashboardkadiv', [DashboardController::class, 'indexKadiv'])->name('dashboardKadiv');
+    Route::prefix('/dashboardkadiv')->group(function () {
+        Route::resource('/Kategori-Surat-Masuk-Kadiv', CatgeoryIncomingKadivController::class);
+        Route::post('/Kategori-Surat-Masuk-Kadiv/list', [CatgeoryIncomingKadivController::class, 'list'])->name('kategori-surat-masuk-list-kadiv');
+    });
+
+    Route::prefix('/dashboardkadiv')->group(function () {
+        Route::resource('/Kategori-Surat-Keluar-Kadiv', CategoryOutgoingKadivController::class);
+        Route::post('/Kategori-Surat-Keluar-Kadiv/list', [CategoryOutgoingKadivController::class, 'list'])->name('kategori-surat-keluar-list-kadiv');
+    });
+    Route::prefix('/dashboardkadiv')->group(function () {
+        Route::resource('/Kategori-Arsip-Surat-Masuk-Kadiv', CatgeoryArchiveIncomingKadivController::class);
+        Route::post('/Kategori-Arsip-Surat-Masuk-Kadiv/list', [CatgeoryArchiveIncomingKadivController::class, 'list'])->name('kategori-arsip-surat-masuk-list-kadiv');
+    });
+    Route::prefix('/dashboardkadiv')->group(function () {
+        Route::resource('/Kategori-Arsip-Surat-Out-Kadiv', CatgeoryArchiveOutgoingKadivController::class);
+        Route::post('/Kategori-Arsip-Surat-Out-Kadiv/list', [CatgeoryArchiveOutgoingKadivController::class, 'list'])->name('kategori-arsip-surat-keluar-list-kadiv');
+    });
 });
 
 Route::middleware(['auth', 'checkStatus:aktif', 'checkRole:superadmin', 'check.uuid'])->group(function () {
@@ -81,5 +102,5 @@ Route::middleware(['auth', 'checkStatus:aktif', 'checkRole:superadmin', 'check.u
 });
 
 Route::middleware(['auth', 'checkStatus:aktif', 'checkRole:pegawai', 'check.uuid'])->group(function () {
-    Route::get('/dashboardpegawai', [DashboardController::class, 'indexPegawai']);
+    Route::get('/dashboardpegawai', [DashboardController::class, 'indexPegawai'])->name('dashboardPegawai');
 });
