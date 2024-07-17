@@ -96,10 +96,19 @@ class SuratMasukKadivController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($uuid)
     {
-        //
+        $incomingLetter = IncomingLetter::with('category', 'sifat')->where('uuid', $uuid)->first();
+
+        if (!$incomingLetter) {
+            return response()->json(['message' => 'Surat masuk tidak ditemukan.'], 404);
+        }
+
+        return response()->json($incomingLetter);
     }
+
+
+
 
     /**
      * Show the form for editing the specified resource.
