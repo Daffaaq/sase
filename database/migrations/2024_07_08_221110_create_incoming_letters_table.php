@@ -26,7 +26,7 @@ return new class extends Migration
             $table->unsignedBigInteger('sifat_surat_id');
             $table->foreign('sifat_surat_id')->references('id')->on('sifat_incoming_letters')->onDelete('cascade');
             $table->enum('status', ['Pending', 'Approved', 'Rejected'])->default('Pending');
-            $table->enum('disposition_status', ['Pending', 'Disposition Sent'])->default('Pending');
+            $table->enum('disposition_status', ['Pending', 'Disposition Sent','not Disposition'])->default('Pending');
             $table->dateTime('created_at')->nullable()->useCurrent();
             $table->integer('created_by')->nullable()->index();
             $table->dateTime('updated_at')->nullable();

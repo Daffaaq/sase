@@ -143,7 +143,6 @@
         </div>
     </div>
 
-
     <!-- Error Modal -->
     <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -161,6 +160,45 @@
                         data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Upload Outgoing Letter Modal -->
+    <div class="modal fade" id="uploadOutgoingLetterModal" tabindex="-1"
+        aria-labelledby="uploadOutgoingLetterModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form id="uploadOutgoingLetterForm" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="uploadOutgoingLetterModalLabel">Upload Outgoing Letter</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="keterangan" class="form-label">Keterangan</label>
+                            <input type="text" class="form-control" id="keterangan" name="keterangan">
+                        </div>
+                        <div class="mb-3">
+                            <label for="file" class="form-label">File</label>
+                            <input type="file" class="form-control" id="file" name="file" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="category_surat_id" class="form-label">Category Surat ID</label>
+                            <select class="form-select" id="category_surat_id" name="category_surat_id" required>
+                                <option value="" disabled selected>Pilih Kategori Surat</option>
+                                @foreach ($categoryOutgoingLetters as $category)
+                                    <option value="{{ $category->id }}">{{ $category->name_jenis_surat_keluar }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button id="sendActionBtn" type="submit" class="btn btn-primary">Upload</button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -246,16 +284,36 @@
                             var showUrl = '{{ route('surat-masuk.show.kadiv', ':uuid') }}';
                             showUrl = showUrl.replace(':uuid', row.uuid);
 
-                            return `
-        <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-info showDetailBtn">
-            <i class="bi bi-eye"></i>
-        </button>
-        <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-success acceptBtn">
-            <i class="bi bi-check"></i>
-        </button>
-        <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-danger rejectBtn">
-            <i class="bi bi-x"></i>
-        </button>`;
+                            // Determine which buttons to show based on status
+                            let buttons = `
+                        <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-info showDetailBtn">
+                            <i class="bi bi-eye"></i>
+                        </button>`;
+
+                            if (row.status === 'Pending') {
+                                buttons += `
+                            <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-success acceptBtn">
+                                <i class="bi bi-check"></i>
+                            </button>
+                            <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-danger rejectBtn">
+                                <i class="bi bi-x"></i>
+                            </button>`;
+                            } else if (row.status === 'Approved') {
+                                buttons += `
+                            <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-danger rejectBtn">
+                                <i class="bi bi-x"></i>
+                            </button>
+                            <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-primary sendLetterBtn">
+                                <i class="bi bi-send"></i>
+                            </button>`;
+                            } else if (row.status === 'Rejected') {
+                                buttons += `
+                            <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-success acceptBtn">
+                                <i class="bi bi-check"></i>
+                            </button>`;
+                            }
+
+                            return buttons;
                         },
                     },
                 ],
@@ -264,6 +322,7 @@
                     $('a').tooltip();
                 }
             });
+
             $('#filter-sifat, #filter-kategori').change(function() {
                 incomingLetterTable.ajax.reload();
             });
@@ -370,6 +429,48 @@
                     error: function(xhr) {
                         alert(xhr.responseJSON.message);
                         $('#confirmModal').modal('hide');
+                    }
+                });
+            });
+
+            // Send letter button click handler
+            $('#incomingLetterTable').on('click', '.sendLetterBtn', function() {
+                var uuid = $(this).data('uuid');
+                var sendUrl = '{{ route('outgoing-letter.upload', ':uuid') }}';
+                sendUrl = sendUrl.replace(':uuid', uuid);
+                $('#uploadOutgoingLetterForm').attr('action', sendUrl);
+                $('#uploadOutgoingLetterModal').modal('show');
+            });
+
+            $('#uploadOutgoingLetterForm').submit(function(e) {
+                e.preventDefault(); // Prevent the default form submission
+
+                var formData = new FormData(this);
+
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        $('#uploadOutgoingLetterModal').modal('hide');
+                        alert(response.message);
+                        incomingLetterTable.ajax.reload();
+                    },
+                    error: function(xhr) {
+                        var response = xhr.responseJSON;
+                        if (response) {
+                            var errorMessages = response.message;
+                            if (response.errors) {
+                                for (var key in response.errors) {
+                                    errorMessages += '\n' + response.errors[key].join('\n');
+                                }
+                            }
+                            alert(errorMessages);
+                        } else {
+                            alert('An unknown error occurred.');
+                        }
                     }
                 });
             });

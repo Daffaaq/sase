@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Mail\SendEmail;
 use App\Models\CategoryIncomingLetter;
 use App\Models\IncomingLetter;
@@ -39,38 +40,55 @@ class SuratGuestSuperadminController extends Controller
         $file = $request->file('file');
         $path = $file->store('public/files');
 
-        $surat = IncomingLetter::create([
-            'nomer_surat_masuk' => $request->nomer_surat_masuk,
-            'nomer_surat_masuk_idx' => $this->generateNoSuratIdx(),
-            'tanggal_surat_masuk' => now(),
-            'nama_pengirim' => $request->nama_pengirim,
-            'email_pengirim' => $request->email_pengirim,
-            'keterangan' => $request->deskripsi_surat,
-            'file' => $path,
-            'category_surat_id' => $request->category_surat_id,
-            'sifat_surat_id' => $request->sifat_surat_id,
-            'status' => 'Pending',
-            'disposition_status' => 'pending',
-            'created_by' => auth()->id(),
-            'updated_by' => auth()->id(),
-        ]);
+        DB::beginTransaction();
 
-        Mail::to($request->email_pengirim)->send(new SendEmail($request->all()));
+        try {
+            $nomerSuratMasukIdx = $this->generateNoSuratIdx();
 
-        return back()->with('success', 'Surat berhasil dikirim!');
+            $surat = IncomingLetter::create([
+                'nomer_surat_masuk' => $request->nomer_surat_masuk,
+                'nomer_surat_masuk_idx' => $nomerSuratMasukIdx,
+                'tanggal_surat_masuk' => now(),
+                'nama_pengirim' => $request->nama_pengirim,
+                'email_pengirim' => $request->email_pengirim,
+                'keterangan' => $request->deskripsi_surat,
+                'file' => $path,
+                'category_surat_id' => $request->category_surat_id,
+                'sifat_surat_id' => $request->sifat_surat_id,
+                'status' => 'Pending',
+                'disposition_status' => 'pending',
+                'created_by' => auth()->id() ?: null,
+                'updated_by' => auth()->id() ?: null,
+            ]);
+
+            Mail::to($request->email_pengirim)->send(new SendEmail($request->all()));
+
+            DB::commit();
+
+            return back()->with('success', 'Surat berhasil dikirim!');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()->with('error', 'Failed to send surat.');
+        }
     }
 
     private function generateNoSuratIdx()
     {
-        $latestSurat = IncomingLetter::orderBy('created_at', 'desc')->first();
-        $latestNoSuratIdx = $latestSurat ? (int)substr($latestSurat->nomer_surat_masuk_idx, 0, 4) : 0;
-        $newNoSuratIdx = str_pad($latestNoSuratIdx + 1, 4, '0', STR_PAD_LEFT);
+        $newNoSuratIdx = null;
 
-        $fixedPart = 'SIN';
-        $monthRoman = $this->convertToRoman(now()->month);
-        $year = now()->year;
+        do {
+            $latestSurat = IncomingLetter::lockForUpdate()->orderBy('created_at', 'desc')->first();
+            $latestNoSuratIdx = $latestSurat ? (int)substr($latestSurat->nomer_surat_masuk_idx, 0, 4) : 0;
+            $newNoSuratIdx = str_pad($latestNoSuratIdx + 1, 4, '0', STR_PAD_LEFT);
 
-        return "{$newNoSuratIdx}/{$fixedPart}/{$monthRoman}/{$year}";
+            $fixedPart = 'SIN';
+            $monthRoman = $this->convertToRoman(now()->month);
+            $year = now()->year;
+
+            $generatedIdx = "{$newNoSuratIdx}/{$fixedPart}/{$monthRoman}/{$year}";
+        } while (IncomingLetter::where('nomer_surat_masuk_idx', $generatedIdx)->exists());
+
+        return $generatedIdx;
     }
 
     private function convertToRoman($month)
