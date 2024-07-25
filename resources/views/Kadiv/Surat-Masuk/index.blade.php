@@ -57,6 +57,10 @@
                     </select>
                     <small style="font-size: 10px">Kategori Surat</small>
                 </div>
+                <div class="col-md-4">
+                    <input type="date" id="filter-tanggal" class="form-control" placeholder="Tanggal Surat">
+                    <small style="font-size: 10px">tanggal Surat Masuk</small>
+                </div>
             </div>
             <div class="table-responsive">
                 <table class="table table-bordered" id="incomingLetterTable" width="100%" cellspacing="0">
@@ -64,10 +68,8 @@
                         <tr>
                             <th>No</th>
                             <th>Nomer Surat</th>
-                            <th>Nomer IDX</th>
                             <th>Kategori Surat</th>
                             <th>Sifat Surat</th>
-                            <th>Tanggal Surat</th>
                             <th>Status Surat</th>
                             <th>Status Disposisi</th>
                             <th>Status Balasan</th>
@@ -112,7 +114,7 @@
                         </div>
                         <div class="col-md-6">
                             <h6>File Surat:</h6>
-                            <iframe id="detailFileSurat" src="" width="100%" height="500px"></iframe>
+                            <embed id="detailFileSurat" src="" width="100%" height="500px"></embed>
                         </div>
                     </div>
                 </div>
@@ -219,6 +221,7 @@
                         d._token = '{{ csrf_token() }}';
                         d.sifat = $('#filter-sifat').val();
                         d.kategori = $('#filter-kategori').val();
+                        d.tanggal = $('#filter-tanggal').val();
                     }
                 },
                 columns: [{
@@ -232,23 +235,12 @@
                         name: 'nomer_surat_masuk'
                     },
                     {
-                        data: 'nomer_surat_masuk_idx',
-                        name: 'nomer_surat_masuk_idx'
-                    },
-                    {
                         data: 'category.name_jenis_surat_masuk',
                         name: 'category.name_jenis_surat_masuk'
                     },
                     {
                         data: 'sifat.name_sifat',
                         name: 'sifat.name_sifat'
-                    },
-                    {
-                        data: 'tanggal_surat_masuk',
-                        name: 'tanggal_surat_masuk',
-                        render: function(data, type, row) {
-                            return moment(data).format('DD-MM-YYYY');
-                        }
                     },
                     {
                         data: 'status',
@@ -339,7 +331,7 @@
                 }
             });
 
-            $('#filter-sifat, #filter-kategori').change(function() {
+            $('#filter-sifat, #filter-kategori, #filter-tanggal').change(function() {
                 incomingLetterTable.ajax.reload();
             });
 
@@ -389,7 +381,7 @@
 
                         // Set the status badge for status balasan
                         let balasanBadgeClass = '';
-                        if (response.outgoing_letter) {
+                        if (response.status_sent) {
                             balasanBadgeClass = 'badge bg-success';
                             $('#detailStatusBalasan').attr('class', balasanBadgeClass).text(
                                 'Sent');
@@ -453,7 +445,7 @@
                                 }
                             },
                             3000
-                            ); // Show the success message for 3 seconds before closing the modal
+                        ); // Show the success message for 3 seconds before closing the modal
                         incomingLetterTable.ajax.reload();
                     },
                     error: function(xhr) {

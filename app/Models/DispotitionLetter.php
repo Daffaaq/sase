@@ -10,7 +10,7 @@ class DispotitionLetter extends Model
 {
     use HasFactory;
 
-    protected $table = 'disposition_letters';
+    protected $table = 'dispotition_letters';
 
     protected $fillable = [
         'uuid',

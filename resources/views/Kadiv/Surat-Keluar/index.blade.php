@@ -55,7 +55,6 @@
                         <tr>
                             <th>No</th>
                             <th>Nomer Surat Keluar</th>
-                            <th>Nomer IDX</th>
                             <th>Kategori Surat Keluar</th>
                             <th>Tanggal Surat Keluar</th>
                             <th>Status Surat Keluar</th>
@@ -93,7 +92,7 @@
                         </div>
                         <div class="col-md-6">
                             <h6>File Surat:</h6>
-                            <iframe id="detailFileSurat" src="" width="100%" height="500px"></iframe>
+                            <embed id="detailFileSurat" src="" width="100%" height="500px"></embed>
                         </div>
                     </div>
                 </div>
@@ -170,10 +169,6 @@
                     {
                         data: 'nomer_surat_keluar',
                         name: 'nomer_surat_keluar'
-                    },
-                    {
-                        data: 'nomer_surat_keluark_idx',
-                        name: 'nomer_surat_keluark_idx'
                     },
                     {
                         data: 'category.name_jenis_surat_keluar',

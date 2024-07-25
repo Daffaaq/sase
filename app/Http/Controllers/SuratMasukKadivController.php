@@ -42,6 +42,10 @@ class SuratMasukKadivController extends Controller
                 $data->where('category_surat_id', $request->kategori);
             }
 
+            if ($request->tanggal) {
+                $data->whereDate('tanggal_surat_masuk', $request->tanggal);
+            }
+
             $dataCollection = $data->get();
             $data_ids = $dataCollection->pluck('id');
 
@@ -225,8 +229,13 @@ class SuratMasukKadivController extends Controller
             return response()->json(['message' => 'Surat masuk tidak ditemukan.'], 404);
         }
 
+        // Check if the letter has a corresponding outgoing letter
+        $outgoingLetterExists = OutgoingLetter::where('reference_letter_id', $incomingLetter->id)->exists();
+        $incomingLetter->status_sent = $outgoingLetterExists;
+
         return response()->json($incomingLetter);
     }
+
 
 
 
