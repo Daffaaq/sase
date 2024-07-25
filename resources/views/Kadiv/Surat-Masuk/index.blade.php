@@ -70,6 +70,7 @@
                             <th>Tanggal Surat</th>
                             <th>Status Surat</th>
                             <th>Status Disposisi</th>
+                            <th>Status Balasan</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -106,6 +107,8 @@
                             <span id="detailStatusSurat" class="badge"></span>
                             <h6>Status Disposisi:</h6>
                             <span id="detailStatusDisposisi" class="badge"></span>
+                            <h6>Status Balasan:</h6>
+                            <span id="detailStatusBalasan" class="badge"></span>
                         </div>
                         <div class="col-md-6">
                             <h6>File Surat:</h6>
@@ -276,6 +279,17 @@
                         }
                     },
                     {
+                        data: 'status_sent',
+                        name: 'status_sent',
+                        render: function(data, type, row) {
+                            if (data) {
+                                return `<span class="badge bg-success">Sent</span>`;
+                            } else {
+                                return `<span class="badge bg-warning">Not Sent</span>`;
+                            }
+                        }
+                    },
+                    {
                         data: 'uuid',
                         name: 'uuid',
                         orderable: false,
@@ -290,27 +304,29 @@
                             <i class="bi bi-eye"></i>
                         </button>`;
 
-                            if (row.status === 'Pending') {
-                                buttons += `
-                            <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-success acceptBtn">
-                                <i class="bi bi-check"></i>
-                            </button>
-                            <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-danger rejectBtn">
-                                <i class="bi bi-x"></i>
-                            </button>`;
-                            } else if (row.status === 'Approved') {
-                                buttons += `
-                            <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-danger rejectBtn">
-                                <i class="bi bi-x"></i>
-                            </button>
-                            <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-primary sendLetterBtn">
-                                <i class="bi bi-send"></i>
-                            </button>`;
-                            } else if (row.status === 'Rejected') {
-                                buttons += `
-                            <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-success acceptBtn">
-                                <i class="bi bi-check"></i>
-                            </button>`;
+                            if (!row.status_sent) {
+                                if (row.status === 'Pending') {
+                                    buttons += `
+                                <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-success acceptBtn">
+                                    <i class="bi bi-check"></i>
+                                </button>
+                                <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-danger rejectBtn">
+                                    <i class="bi bi-x"></i>
+                                </button>`;
+                                } else if (row.status === 'Approved') {
+                                    buttons += `
+                                <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-danger rejectBtn">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                                <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-primary sendLetterBtn">
+                                    <i class="bi bi-send"></i>
+                                </button>`;
+                                } else if (row.status === 'Rejected') {
+                                    buttons += `
+                                <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-success acceptBtn">
+                                    <i class="bi bi-check"></i>
+                                </button>`;
+                                }
                             }
 
                             return buttons;
@@ -348,6 +364,7 @@
                         $('#detailSifatSurat').text(response.sifat.name_sifat);
                         $('#detailTanggalSurat').text(moment(response.tanggal_surat_masuk)
                             .format('DD-MM-YYYY'));
+
                         // Set the status badge for status surat
                         let statusBadgeClass = '';
                         if (response.status === 'Pending') {
@@ -369,6 +386,19 @@
                         }
                         $('#detailStatusDisposisi').attr('class', dispositionBadgeClass).text(
                             response.disposition_status);
+
+                        // Set the status badge for status balasan
+                        let balasanBadgeClass = '';
+                        if (response.outgoing_letter) {
+                            balasanBadgeClass = 'badge bg-success';
+                            $('#detailStatusBalasan').attr('class', balasanBadgeClass).text(
+                                'Sent');
+                        } else {
+                            balasanBadgeClass = 'badge bg-warning';
+                            $('#detailStatusBalasan').attr('class', balasanBadgeClass).text(
+                                'Not Sent');
+                        }
+
                         var fileUrl =
                             `{{ asset('storage') }}/${response.file.replace('public/', '')}`;
                         $('#detailFileSurat').attr('src', fileUrl);
@@ -423,7 +453,7 @@
                                 }
                             },
                             3000
-                        ); // Show the success message for 3 seconds before closing the modal
+                            ); // Show the success message for 3 seconds before closing the modal
                         incomingLetterTable.ajax.reload();
                     },
                     error: function(xhr) {

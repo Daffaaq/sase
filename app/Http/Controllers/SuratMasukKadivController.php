@@ -32,7 +32,8 @@ class SuratMasukKadivController extends Controller
     public function list(Request $request)
     {
         if ($request->ajax()) {
-            $data = IncomingLetter::with('category', 'sifat')->select('uuid', 'nomer_surat_masuk', 'nomer_surat_masuk_idx', 'tanggal_surat_masuk', 'sifat_surat_id', 'category_surat_id', 'status', 'disposition_status');
+            $data = IncomingLetter::with('category', 'sifat')->select('id', 'uuid', 'nomer_surat_masuk', 'nomer_surat_masuk_idx', 'tanggal_surat_masuk', 'sifat_surat_id', 'category_surat_id', 'status', 'disposition_status');
+
             if ($request->sifat) {
                 $data->where('sifat_surat_id', $request->sifat);
             }
@@ -41,13 +42,22 @@ class SuratMasukKadivController extends Controller
                 $data->where('category_surat_id', $request->kategori);
             }
 
-            $data = $data->get();
-            return DataTables::of($data)
+            $dataCollection = $data->get();
+            $data_ids = $dataCollection->pluck('id');
+
+            $dataoutgoing = OutgoingLetter::whereIn('reference_letter_id', $data_ids)->pluck('reference_letter_id')->toArray();
+
+            foreach ($dataCollection as $letter) {
+                $letter->status_sent = in_array($letter->id, $dataoutgoing);
+            }
+
+            return DataTables::of($dataCollection)
                 ->addIndexColumn()
                 ->make(true);
         }
         return response()->json(['message' => 'Method not allowed'], 405);
     }
+
 
     public function accepted(Request $request, $uuid)
     {
@@ -108,7 +118,7 @@ class SuratMasukKadivController extends Controller
             $filePath = $request->file('file')->store('public/outgoing_letters');
 
             $nomerSuratKeluarIdx = $this->generateNoSuratIdx();
-            $nomerSuratKeluar = $this->generateNoSurat($nomerSuratKeluarIdx);
+            $nomerSuratKeluar = $this->generateNoSurat();
 
             $outgoingLetter = OutgoingLetter::create([
                 'reference_letter_id' => $suratMasukData_id,
@@ -156,11 +166,15 @@ class SuratMasukKadivController extends Controller
         return $generatedIdx;
     }
 
-    private function generateNoSurat($newNoSuratIdx)
+    private function generateNoSurat()
     {
         $newNoSurat = null;
 
         do {
+            $latestSurat = OutgoingLetter::lockForUpdate()->orderBy('created_at', 'desc')->first();
+            $latestNoSuratIdx = $latestSurat ? (int)substr($latestSurat->nomer_surat_keluar, 0, 4) : 0;
+            $newNoSuratIdx = str_pad($latestNoSuratIdx + 1, 4, '0', STR_PAD_LEFT);
+
             $fixedPart = 'SOT';
             $middlePart = 'SASE';
             $monthRoman = $this->convertToRoman(now()->month);

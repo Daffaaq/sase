@@ -13,6 +13,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ManajemenUserController;
 use App\Http\Controllers\SuratAllSuperadminController;
 use App\Http\Controllers\SuratGuestSuperadminController;
+use App\Http\Controllers\SuratKeluarKadivController;
 use App\Http\Controllers\SuratMasukKadivController;
 use App\Http\Controllers\SuratPegawaiSuperadminController;
 use App\Http\Controllers\SuratSuperadminController;
@@ -78,6 +79,11 @@ Route::middleware(['auth', 'checkStatus:aktif', 'checkRole:kadiv', 'check.uuid']
         Route::get('/Surat-Masuk/{uuid}/show', [SuratMasukKadivController::class, 'show'])->name('surat-masuk.show.kadiv');
         Route::post('/Surat-Masuk/{uuid}/sendOutgoing', [SuratMasukKadivController::class, 'uploadOutgoingLetter'])->name('outgoing-letter.upload');
         Route::post('/Surat-Masuk/list', [SuratMasukKadivController::class, 'list'])->name('surat-masuk-list-kadiv');
+    });
+    Route::prefix('/dashboardkadiv')->group(function () {
+        Route::get('/Surat-Keluar', [SuratKeluarKadivController::class, 'index'])->name('surat-keluar-index-kadiv');
+        Route::post('/Surat-Keluar/list', [SuratKeluarKadivController::class, 'list'])->name('surat-keluar-list-kadiv');
+        Route::get('/Surat-Keluar/{uuid}/show', [SuratKeluarKadivController::class, 'show'])->name('surat-keluar.show.kadiv');
     });
 });
 

@@ -110,7 +110,7 @@
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a href="index.html" class="sidebar-link">
+                            <a href="{{route('surat-keluar-index-kadiv')}}" class="sidebar-link">
                                 <i class="bi bi-envelope-open"></i>
                                 <span>Surat Keluar</span>
                             </a>
