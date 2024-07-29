@@ -31,14 +31,15 @@
         }
 
         .card {
-            width: 500px;
-            max-width: 400px;
+            width: 100%;
+            max-width: 600px;
             background: white;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             border-radius: 20px;
             padding: 2rem;
             position: relative;
             overflow: hidden;
+            z-index: 2;
         }
 
         .card-body {
@@ -54,7 +55,7 @@
             padding: 1rem;
             margin: -2rem -2rem 2rem -2rem;
             position: relative;
-            z-index: 1;
+            z-index: 2;
         }
 
         .card-header h1,
@@ -180,58 +181,87 @@
                 <form id="upload-form" action="{{ route('post-surat-eksternal') }}" method="POST"
                     enctype="multipart/form-data">
                     @csrf
-                    <div class="mb-3 input-group">
-                        <span class="input-group-text"><i class="fi fi-rr-user"></i></span>
-                        <input type="text" class="form-control" id="nama_pengirim" name="nama_pengirim"
-                            placeholder="Nama Lengkap" required autocomplete="off">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="input-group">
+                                <label for="nama_pengirim" class="input-group-text"><i
+                                        class="fi fi-rr-user"></i></label>
+                                <input type="text" class="form-control" id="nama_pengirim" name="nama_pengirim"
+                                    placeholder="Nama Lengkap" required autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="input-group">
+                                <label for="nomer_surat_masuk" class="input-group-text"><i
+                                        class="fi fi-rr-input-numeric"></i></label>
+                                <input type="text" class="form-control" id="nomer_surat_masuk"
+                                    name="nomer_surat_masuk" placeholder="Nomer Surat Masuk" required
+                                    autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="input-group">
+                                <label for="instansi_pengirim" class="input-group-text"><i
+                                        class="fi fi-rr-building"></i></label>
+                                <input type="text" class="form-control" id="instansi_pengirim"
+                                    name="instansi_pengirim" placeholder="Nama Perusahaan" required autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="input-group">
+                                <label for="category_surat_id" class="input-group-text"><i
+                                        class="fi fi-rr-list"></i></label>
+                                <select class="form-control" id="category_surat_id" name="category_surat_id" required>
+                                    <option value="" disabled selected>Pilih Kategori Surat</option>
+                                    @foreach ($category_surat as $category)
+                                        <option value="{{ $category->id }}">{{ $category->name_jenis_surat_masuk }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="input-group">
+                                <label for="email_pengirim" class="input-group-text"><i
+                                        class="fi fi-rr-mailbox-envelope"></i></label>
+                                <input type="email" class="form-control" id="email_pengirim" name="email_pengirim"
+                                    placeholder="Email" required autocomplete="off">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <div class="input-group">
+                                <label for="deskripsi_surat" class="input-group-text"><i
+                                        class="fi fi-rr-text"></i></label>
+                                <textarea class="form-control" id="deskripsi_surat" name="deskripsi_surat" placeholder="Deskripsi Surat" required
+                                    autocomplete="off"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="input-group">
+                                <label for="no_telp_pengirim" class="input-group-text"><i
+                                        class="fi fi-rr-smartphone"></i></label>
+                                <input type="tel" class="form-control" id="no_telp_pengirim" name="no_telp_pengirim"
+                                    placeholder="No Telp" required autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="input-group">
+                                <label for="sifat_surat_id" class="input-group-text"><i
+                                        class="fi fi-rr-list"></i></label>
+                                <select class="form-control" id="sifat_surat_id" name="sifat_surat_id" required>
+                                    <option value="" disabled selected>Pilih Sifat Surat</option>
+                                    @foreach ($sifat_surat as $sifat)
+                                        <option value="{{ $sifat->id }}">{{ $sifat->name_sifat }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                    <div class="mb-3 input-group">
-                        <span class="input-group-text"><i class="fi fi-rr-mailbox-envelope"></i></span>
-                        <input type="email" class="form-control" id="email_pengirim" name="email_pengirim"
-                            placeholder="Email" required autocomplete="off">
-                    </div>
-                    <div class="mb-3 input-group">
-                        <span class="input-group-text"><i class="fi fi-rr-building"></i></span>
-                        <input type="text" class="form-control" id="instansi_pengirim" name="instansi_pengirim"
-                            placeholder="Nama Perusahaan" required autocomplete="off">
-                    </div>
-                    <div class="mb-3 input-group">
-                        <span class="input-group-text"><i class="fi fi-rr-smartphone"></i></span>
-                        <input type="tel" class="form-control" id="no_telp_pengirim" name="no_telp_pengirim"
-                            placeholder="No Telp" required autocomplete="off">
-                    </div>
-                    <div class="mb-3 input-group">
-                        <span class="input-group-text"><i class="fi fi-rr-input-numeric"></i></span>
-                        <input type="text" class="form-control" id="nomer_surat_masuk" name="nomer_surat_masuk"
-                            placeholder="Nomer Surat Masuk" required autocomplete="off">
-                    </div>
-                    <div class="mb-3 input-group">
-                        <span class="input-group-text"><i class="fi fi-rr-text"></i></span>
-                        <textarea class="form-control" id="deskripsi_surat" name="deskripsi_surat" placeholder="Deskripsi Surat" required
-                            autocomplete="off"></textarea>
-                    </div>
-                    <div class="mb-3 input-group">
-                        <span class="input-group-text"><i class="fi fi-rr-file-upload"></i></span>
+                    <div class="mb-3 input-group justify-content-center">
+                        <label for="file" class="input-group-text"><i class="fi fi-rr-file-upload"></i></label>
                         <input type="file" class="form-control" id="file" name="file" required
                             autocomplete="off">
-                    </div>
-                    <div class="mb-3 input-group">
-                        <span class="input-group-text"><i class="fi fi-rr-list"></i></span>
-                        <select class="form-control" id="category_surat_id" name="category_surat_id" required>
-                            <option value="" disabled selected>Pilih Kategori Surat</option>
-                            @foreach ($category_surat as $category)
-                                <option value="{{ $category->id }}">{{ $category->name_jenis_surat_masuk }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="mb-3 input-group">
-                        <span class="input-group-text"><i class="fi fi-rr-list"></i></span>
-                        <select class="form-control" id="sifat_surat_id" name="sifat_surat_id" required>
-                            <option value="" disabled selected>Pilih Sifat Surat</option>
-                            @foreach ($sifat_surat as $sifat)
-                                <option value="{{ $sifat->id }}">{{ $sifat->name_sifat }}</option>
-                            @endforeach
-                        </select>
                     </div>
                     <div class="progress mb-3" style="height: 20px; display: none;">
                         <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
@@ -347,8 +377,8 @@
                     if (width >= 100) {
                         clearInterval(interval);
                         $('.progress').hide();
-                        progressBar.width(0);
-                        progressBar.attr('aria-valuenow', 0);
+                        progressBar.width('100%');
+                        progressBar.attr('aria-valuenow', 100);
                         showToast('File uploaded successfully.', 'successToast');
                     } else {
                         width++;

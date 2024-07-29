@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Storage;
 
 class SuratGuestSuperadminController extends Controller
 {
+    private const REQUIRED_STRING = 'required|string';
     public function viewform()
     {
         $sifat_surat = SifatIncomingLetter::all();
@@ -23,19 +24,23 @@ class SuratGuestSuperadminController extends Controller
         return view('Guest.kirim_surat', compact('sifat_surat', 'category_surat'));
     }
 
-    public function sendSurat(Request $request)
+    private function getValidationRules()
     {
-        $request->validate([
-            'nama_pengirim' => 'required|string',
-            'email_pengirim' => 'required|email',
-            'instansi_pengirim' => 'required|string',
-            'no_telp_pengirim' => 'required|string',
-            'deskripsi_surat' => 'required|string',
-            'nomer_surat_masuk' => 'required|string',
-            'file' => 'required|file|mimes:pdf,doc,docx',
+        return [
+            'nama_pengirim' => self::REQUIRED_STRING,
+            'email_pengirim' => 'required|email|regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
+            'instansi_pengirim' => self::REQUIRED_STRING,
+            'no_telp_pengirim' => 'required|regex:/^[0-9]{7,14}$/',
+            'deskripsi_surat' => self::REQUIRED_STRING,
+            'nomer_surat_masuk' => self::REQUIRED_STRING,
+            'file' => 'required|file|mimes:pdf|max:2048',
             'sifat_surat_id' => 'required|exists:sifat_incoming_letters,id',
             'category_surat_id' => 'required|exists:category_incoming_letters,id',
-        ]);
+        ];
+    }
+    public function sendSurat(Request $request)
+    {
+        $request->validate($this->getValidationRules());
 
         $file = $request->file('file');
         $path = $file->store('public/files');

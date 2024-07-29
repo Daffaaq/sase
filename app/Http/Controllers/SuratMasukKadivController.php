@@ -200,27 +200,6 @@ class SuratMasukKadivController extends Controller
         return $map[$month];
     }
 
-
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show($uuid)
     {
         $incomingLetter = IncomingLetter::with('category', 'sifat')->where('uuid', $uuid)->first();
@@ -234,33 +213,5 @@ class SuratMasukKadivController extends Controller
         $incomingLetter->status_sent = $outgoingLetterExists;
 
         return response()->json($incomingLetter);
-    }
-
-
-
-
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
     }
 }

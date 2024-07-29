@@ -15,8 +15,10 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid')->unique();
             $table->unsignedBigInteger('letter_incoming_id');
+            $table->unsignedBigInteger('category_incoming_id');
             $table->string('kode_arsip_incoming');
             $table->foreign('letter_incoming_id')->references('id')->on('incoming_letters')->onDelete('cascade');
+            $table->foreign('category_incoming_id')->references('id')->on('category_archive_incoming_letters')->onDelete('cascade');
             $table->dateTime('created_at')->nullable()->useCurrent();
             $table->integer('created_by')->nullable()->index();
             $table->dateTime('updated_at')->nullable();

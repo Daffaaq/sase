@@ -317,6 +317,9 @@
                                     buttons += `
                                 <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-success acceptBtn">
                                     <i class="bi bi-check"></i>
+                                </button>
+                                 <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-primary sendLetterBtn">
+                                    <i class="bi bi-send"></i>
                                 </button>`;
                                 }
                             }
