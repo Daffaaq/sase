@@ -99,6 +99,8 @@ class SuratMasukKadivController extends Controller
 
     public function uploadOutgoingLetter(Request $request, $uuid)
     {
+        ini_set('max_execution_time', 300); // Set maximum execution time to 300 seconds (5 minutes)
+
         $suratMasuk = IncomingLetter::where('uuid', $uuid)->first();
         $suratMasukData_id = IncomingLetter::where('uuid', $uuid)->value('id');
 
@@ -108,7 +110,7 @@ class SuratMasukKadivController extends Controller
 
         $validator = Validator::make($request->all(), [
             'keterangan' => 'nullable|string',
-            'file' => 'required|file|mimes:pdf,doc,docx',
+            'file' => 'required|file|mimes:pdf,doc,docx|max:10240',
             'category_surat_id' => 'required|exists:category_outgoing_letters,id',
         ]);
 
@@ -148,16 +150,14 @@ class SuratMasukKadivController extends Controller
         }
     }
 
-
-
-
     private function generateNoSuratIdx()
     {
         $newNoSuratIdx = null;
+        $attempts = 0; // Log the number of attempts
 
         do {
             $latestSurat = OutgoingLetter::lockForUpdate()->orderBy('created_at', 'desc')->first();
-            $latestNoSuratIdx = $latestSurat ? (int)substr($latestSurat->nomer_surat_keluar_idx, 0, 4) : 0;
+            $latestNoSuratIdx = $latestSurat ? (int)substr($latestSurat->nomer_surat_keluark_idx, 0, 4) : 0;
             $newNoSuratIdx = str_pad($latestNoSuratIdx + 1, 4, '0', STR_PAD_LEFT);
 
             $fixedPart = 'SOT';
@@ -165,6 +165,11 @@ class SuratMasukKadivController extends Controller
             $year = now()->year;
 
             $generatedIdx = "{$newNoSuratIdx}/{$fixedPart}/{$monthRoman}/{$year}";
+            $attempts++;
+
+            if ($attempts > 100) { // Add a condition to break the loop if it runs too many times
+                throw new \Exception('Failed to generate unique surat index');
+            }
         } while (OutgoingLetter::where('nomer_surat_keluark_idx', $generatedIdx)->exists());
 
         return $generatedIdx;
@@ -173,6 +178,7 @@ class SuratMasukKadivController extends Controller
     private function generateNoSurat()
     {
         $newNoSurat = null;
+        $attempts = 0; // Log the number of attempts
 
         do {
             $latestSurat = OutgoingLetter::lockForUpdate()->orderBy('created_at', 'desc')->first();
@@ -185,10 +191,16 @@ class SuratMasukKadivController extends Controller
             $year = now()->year;
 
             $newNoSurat = "{$newNoSuratIdx}/{$fixedPart}/{$middlePart}/{$monthRoman}/{$year}";
+            $attempts++;
+
+            if ($attempts > 100) { // Add a condition to break the loop if it runs too many times
+                throw new \Exception('Failed to generate unique surat number');
+            }
         } while (OutgoingLetter::where('nomer_surat_keluar', $newNoSurat)->exists());
 
         return $newNoSurat;
     }
+
 
     private function convertToRoman($month)
     {

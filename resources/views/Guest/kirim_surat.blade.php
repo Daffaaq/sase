@@ -228,7 +228,6 @@
                                     placeholder="Email" required autocomplete="off">
                             </div>
                         </div>
-
                         <div class="col-md-6 mb-3">
                             <div class="input-group">
                                 <label for="deskripsi_surat" class="input-group-text"><i
