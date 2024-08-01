@@ -15,6 +15,9 @@ class DispotitionLetter extends Model
     protected $fillable = [
         'uuid',
         'letter_id',
+        'nomer_surat_disposisi',
+        'nomer_surat_disposisi_idx',
+        'file',
         'user_id',
         'Tugas',
         'Tanggal Disposisi',

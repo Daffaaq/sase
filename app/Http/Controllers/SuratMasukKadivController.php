@@ -7,10 +7,12 @@ use App\Mail\LetterRejected;
 use App\Mail\OutgoingLetterMail;
 use App\Models\CategoryIncomingLetter;
 use App\Models\CategoryOutgoingLetter;
+use App\Models\DispotitionLetter;
 use App\Models\IncomingLetter;
 use App\Models\OutgoingLetter;
 use Illuminate\Support\Facades\DB;
 use App\Models\SifatIncomingLetter;
+use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use Yajra\DataTables\DataTables;
 use Illuminate\Http\Request;
@@ -26,7 +28,8 @@ class SuratMasukKadivController extends Controller
         $sifats = SifatIncomingLetter::all(); // Sesuaikan dengan model yang digunakan
         $categories = CategoryIncomingLetter::all(); // Sesuaikan dengan model yang digunakan
         $categoryOutgoingLetters = CategoryOutgoingLetter::all();
-        return view('Kadiv.Surat-Masuk.index', compact('sifats', 'categories', 'categoryOutgoingLetters'));
+        $users = User::where('role', 'pegawai')->get();
+        return view('Kadiv.Surat-Masuk.index', compact('sifats', 'categories', 'categoryOutgoingLetters', 'users'));
     }
 
     public function list(Request $request)
@@ -210,6 +213,113 @@ class SuratMasukKadivController extends Controller
             9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII',
         ];
         return $map[$month];
+    }
+
+    public function Disposition(Request $request, $uuid)
+    {
+        ini_set('max_execution_time', 300); // Set maximum execution time to 300 seconds (5 minutes)
+
+        $suratMasuk = IncomingLetter::where('uuid', $uuid)->first();
+        $suratMasukData_id = IncomingLetter::where('uuid', $uuid)->value('id');
+
+        if (!$suratMasuk) {
+            return response()->json(['message' => 'Incoming letter not found.'], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'Tugas' => 'required|string',
+            'file' => 'required|file|mimes:pdf,doc,docx|max:10240',
+            'user_id' => 'required|array',
+            'user_id.*' => 'exists:users,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Validation error.', 'errors' => $validator->errors()], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $filePath = $request->file('file')->store('public/disposisi_letters');
+
+            $nomerSuratDisposisi = $this->generateNoSuratDis();
+            $updateStatus = IncomingLetter::where('uuid', $uuid)->update(['disposition_status' => 'Disposition Sent']);
+
+            foreach ($request->user_id as $userId) {
+                $nomerSuratDisposisiIDX = $this->generateNoSuratIdxDis();
+                DispotitionLetter::create([
+                    'letter_id' => $suratMasukData_id,
+                    'nomer_surat_disposisi' => $nomerSuratDisposisi,
+                    'nomer_surat_disposisi_idx' => $nomerSuratDisposisiIDX,
+                    'Tanggal Disposisi' => now()->toDateString(),
+                    'user_id' => $userId,
+                    'Tugas' => $request->Tugas,
+                    'file' => $filePath,
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json(['message' => 'Outgoing letter uploaded and sent successfully.'], 200);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['message' => 'Failed to upload outgoing letter.', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+
+
+    private function generateNoSuratIdxDis()
+    {
+        $newNoSuratIdx = null;
+        $attempts = 0;
+
+        do {
+            // Mengunci tabel untuk mencegah race condition
+            $latestSurat = DispotitionLetter::lockForUpdate()->orderBy('created_at', 'desc')->first();
+            $latestNoSuratIdx = $latestSurat ? (int)substr($latestSurat->nomer_surat_disposisi_idx, 0, 4) : 0;
+            $newNoSuratIdx = str_pad($latestNoSuratIdx + 1, 4, '0', STR_PAD_LEFT);
+
+            $fixedPart = 'SDP';
+            $monthRoman = $this->convertToRoman(now()->month);
+            $year = now()->year;
+
+            $generatedIdx = "{$newNoSuratIdx}/{$fixedPart}/{$monthRoman}/{$year}";
+            $attempts++;
+
+            if ($attempts > 100) {
+                throw new \Exception('Failed to generate unique surat index');
+            }
+        } while (DispotitionLetter::where('nomer_surat_disposisi_idx', $generatedIdx)->exists());
+
+        return $generatedIdx;
+    }
+
+
+    private function generateNoSuratDis()
+    {
+        $newNoSurat = null;
+        $attempts = 0; // Log the number of attempts
+
+        do {
+            $latestSurat = DispotitionLetter::lockForUpdate()->orderBy('created_at', 'desc')->first();
+            $latestNoSuratIdx = $latestSurat ? (int)substr($latestSurat->nomer_surat_keluar, 0, 4) : 0;
+            $newNoSuratIdx = str_pad($latestNoSuratIdx + 1, 4, '0', STR_PAD_LEFT);
+
+            $fixedPart = 'SDP';
+            $middlePart = 'SASE';
+            $monthRoman = $this->convertToRoman(now()->month);
+            $year = now()->year;
+
+            $newNoSurat = "{$newNoSuratIdx}/{$fixedPart}/{$middlePart}/{$monthRoman}/{$year}";
+            $attempts++;
+
+            if ($attempts > 100) { // Add a condition to break the loop if it runs too many times
+                throw new \Exception('Failed to generate unique surat number');
+            }
+        } while (OutgoingLetter::where('nomer_surat_keluar', $newNoSurat)->exists());
+
+        return $newNoSurat;
     }
 
     public function show($uuid)

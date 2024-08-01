@@ -1,5 +1,42 @@
 @extends('Kadiv.new_layouts.main')
 
+@section('breadcrumbs')
+    <nav aria-label="breadcrumb" style="text-align: right; margin-bottom: 2px;">
+        <ol class="breadcrumb"
+            style="display: inline-block; padding: 5px 10px; border-radius: 4px; font-size: 0.875rem; list-style: none; margin: 0; padding-left: 0;">
+            <li class="breadcrumb-item" style="display: inline; margin-right: 5px;">
+                <a href="{{ url('/') }}" style="text-decoration: none; color: #007bff;">Home</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page" style="display: inline; color: #6c757d;">
+                Kategori Surat Arsip Masuk Management
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Inline Style Block for Pseudo-elements -->
+    <style>
+        .breadcrumb-item {
+            position: relative;
+        }
+
+        .breadcrumb-item:not(:last-child)::after {
+            content: " / ";
+            /* Separator */
+            position: absolute;
+            right: -5px;
+            /* Adjust as needed to position correctly */
+            top: 0;
+            color: #6c757d;
+            /* Match the color of the breadcrumb items */
+        }
+
+        .breadcrumb-item::before {
+            content: none !important;
+            /* Removes any default separators */
+        }
+    </style>
+@endsection
+
 @section('container')
     @if (session('info'))
         <div class="alert alert-info">
@@ -112,8 +149,8 @@
             <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
                     <h5 class="modal-title" id="errorModalLabel">Error</h5>
-                    <button type="button" id="closeErrorModal" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
+                    <button type="button" id="closeErrorModal" class="btn-close btn-close-white"
+                        data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body text-center">
                     <p id="errorMessageContent" class="fw-bold">AKSES DIBATASI.</p>
@@ -209,7 +246,8 @@
                 $.get(url, function(response) {
                     var data = response.data;
                     $('#categoryModalLabel').text('Edit Kategori Arsip Surat Masuk');
-                    var updateUrl = '{{ route('Kategori-Arsip-Surat-Masuk-Kadiv.update', ':uuid') }}';
+                    var updateUrl =
+                        '{{ route('Kategori-Arsip-Surat-Masuk-Kadiv.update', ':uuid') }}';
                     updateUrl = updateUrl.replace(':uuid', uuid);
                     $('#categoryForm').attr('action', updateUrl);
                     $('#categoryForm').append('<input type="hidden" name="_method" value="PUT">');

@@ -1,5 +1,42 @@
 @extends('Kadiv.new_layouts.main')
 
+@section('breadcrumbs')
+    <nav aria-label="breadcrumb" style="text-align: right; margin-bottom: 2px;">
+        <ol class="breadcrumb"
+            style="display: inline-block; padding: 5px 10px; border-radius: 4px; font-size: 0.875rem; list-style: none; margin: 0; padding-left: 0;">
+            <li class="breadcrumb-item" style="display: inline; margin-right: 5px;">
+                <a href="{{ url('/') }}" style="text-decoration: none; color: #007bff;">Home</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page" style="display: inline; color: #6c757d;">
+                Kategori Surat Masuk Management
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Inline Style Block for Pseudo-elements -->
+    <style>
+        .breadcrumb-item {
+            position: relative;
+        }
+
+        .breadcrumb-item:not(:last-child)::after {
+            content: " / ";
+            /* Separator */
+            position: absolute;
+            right: -5px;
+            /* Adjust as needed to position correctly */
+            top: 0;
+            color: #6c757d;
+            /* Match the color of the breadcrumb items */
+        }
+
+        .breadcrumb-item::before {
+            content: none !important;
+            /* Removes any default separators */
+        }
+    </style>
+@endsection
+
 @section('container')
     @if (session('info'))
         <div class="alert alert-info">
@@ -207,6 +244,46 @@
         </div>
     </div>
 
+    <!-- upload disposition letter modal -->
+    <div class="modal fade" id="dispositionLetterModal" tabindex="-1" aria-labelledby="dispositionLetterModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <form id="uploadDispositionLetterForm" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="dispositionLetterModalLabel">Upload Disposition Letter</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="Tugas" class="form-label">Tugas</label>
+                            <input type="text" class="form-control" id="Tugas" name="Tugas">
+                        </div>
+                        <div class="mb-3">
+                            <label for="file" class="form-label">File</label>
+                            <input type="file" class="form-control" id="file" name="file" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="user_id" class="form-label">Nama Pegawai</label>
+                            <select class="form-control form-control-sm select2_combobox" id="user_id" name="user_id[]"
+                                multiple required>
+                                <option value="" disabled>Pilih Pegawai</option>
+                                @foreach ($users as $user)
+                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button id="sendActionBtn" type="submit" class="btn btn-primary">Upload</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <script>
         $(document).ready(function() {
@@ -290,37 +367,44 @@
                             var showUrl = '{{ route('surat-masuk.show.kadiv', ':uuid') }}';
                             showUrl = showUrl.replace(':uuid', row.uuid);
 
-                            // Determine which buttons to show based on status
+                            // Initialize buttons with the show detail button
                             let buttons = `
-                        <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-info showDetailBtn">
-                            <i class="bi bi-eye"></i>
-                        </button>`;
+        <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-info showDetailBtn">
+            <i class="bi bi-eye"></i>
+        </button>`;
 
-                            if (!row.status_sent) {
+                            // Check if status_sent is true
+                            if (row.status_sent) {
+                                buttons += `
+            <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-success dispositionLetterBtn">
+                <i class="bi bi-send"></i>
+            </button>`;
+                            } else {
+                                // Add buttons based on the disposition_status and status
                                 if (row.status === 'Pending') {
                                     buttons += `
-                                <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-success acceptBtn">
-                                    <i class="bi bi-check"></i>
-                                </button>
-                                <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-danger rejectBtn">
-                                    <i class="bi bi-x"></i>
-                                </button>`;
+                <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-success acceptBtn">
+                    <i class="bi bi-check"></i>
+                </button>
+                <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-danger rejectBtn">
+                    <i class="bi bi-x"></i>
+                </button>`;
                                 } else if (row.status === 'Approved') {
                                     buttons += `
-                                <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-danger rejectBtn">
-                                    <i class="bi bi-x"></i>
-                                </button>
-                                <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-primary sendLetterBtn">
-                                    <i class="bi bi-send"></i>
-                                </button>`;
+                <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-danger rejectBtn">
+                    <i class="bi bi-x"></i>
+                </button>
+                <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-primary sendLetterBtn">
+                    <i class="bi bi-send"></i>
+                </button>`;
                                 } else if (row.status === 'Rejected') {
                                     buttons += `
-                                <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-success acceptBtn">
-                                    <i class="bi bi-check"></i>
-                                </button>
-                                 <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-primary sendLetterBtn">
-                                    <i class="bi bi-send"></i>
-                                </button>`;
+                <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-success acceptBtn">
+                    <i class="bi bi-check"></i>
+                </button>
+                <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-primary sendLetterBtn">
+                    <i class="bi bi-send"></i>
+                </button>`;
                                 }
                             }
 
@@ -480,6 +564,47 @@
                     processData: false,
                     success: function(response) {
                         $('#uploadOutgoingLetterModal').modal('hide');
+                        alert(response.message);
+                        incomingLetterTable.ajax.reload();
+                    },
+                    error: function(xhr) {
+                        var response = xhr.responseJSON;
+                        if (response) {
+                            var errorMessages = response.message;
+                            if (response.errors) {
+                                for (var key in response.errors) {
+                                    errorMessages += '\n' + response.errors[key].join('\n');
+                                }
+                            }
+                            alert(errorMessages);
+                        } else {
+                            alert('An unknown error occurred.');
+                        }
+                    }
+                });
+            });
+
+            $('#incomingLetterTable').on('click', '.dispositionLetterBtn', function() {
+                var uuid = $(this).data('uuid');
+                var sendUrl = '{{ route('disposition-letter.upload', ':uuid') }}';
+                sendUrl = sendUrl.replace(':uuid', uuid);
+                $('#uploadDispositionLetterForm').attr('action', sendUrl);
+                $('#dispositionLetterModal').modal('show');
+            });
+
+            $('#uploadDispositionLetterForm').submit(function(e) {
+                e.preventDefault(); // Prevent the default form submission
+
+                var formData = new FormData(this);
+
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        $('#dispositionLetterModal').modal('hide');
                         alert(response.message);
                         incomingLetterTable.ajax.reload();
                     },

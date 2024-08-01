@@ -78,6 +78,7 @@ Route::middleware(['auth', 'checkStatus:aktif', 'checkRole:kadiv', 'check.uuid']
         Route::post('/Surat-Masuk/{uuid}/reject', [SuratMasukKadivController::class, 'rejected'])->name('surat-masuk.reject.kadiv');
         Route::get('/Surat-Masuk/{uuid}/show', [SuratMasukKadivController::class, 'show'])->name('surat-masuk.show.kadiv');
         Route::post('/Surat-Masuk/{uuid}/sendOutgoing', [SuratMasukKadivController::class, 'uploadOutgoingLetter'])->name('outgoing-letter.upload');
+        Route::post('/Surat-Masuk/{uuid}/disposition', [SuratMasukKadivController::class, 'Disposition'])->name('disposition-letter.upload');
         Route::post('/Surat-Masuk/list', [SuratMasukKadivController::class, 'list'])->name('surat-masuk-list-kadiv');
     });
     Route::prefix('/dashboardkadiv')->group(function () {

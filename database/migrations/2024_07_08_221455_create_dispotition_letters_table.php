@@ -16,8 +16,11 @@ return new class extends Migration
             $table->uuid('uuid')->unique();
             $table->unsignedBigInteger('letter_id');
             $table->unsignedBigInteger('user_id');
+            $table->string('nomer_surat_disposisi');
+            $table->string('nomer_surat_disposisi_idx');
             $table->text('Tugas');
             $table->date('Tanggal Disposisi');
+            $table->string('file')->nullable();
             $table->dateTime('created_at')->nullable()->useCurrent();
             $table->integer('created_by')->nullable()->index();
             $table->dateTime('updated_at')->nullable();

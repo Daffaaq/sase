@@ -1,5 +1,42 @@
 @extends('Kadiv.new_layouts.main')
 
+@section('breadcrumbs')
+    <nav aria-label="breadcrumb" style="text-align: right; margin-bottom: 2px;">
+        <ol class="breadcrumb"
+            style="display: inline-block; padding: 5px 10px; border-radius: 4px; font-size: 0.875rem; list-style: none; margin: 0; padding-left: 0;">
+            <li class="breadcrumb-item" style="display: inline; margin-right: 5px;">
+                <a href="{{ url('/') }}" style="text-decoration: none; color: #007bff;">Home</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page" style="display: inline; color: #6c757d;">
+                Kategori Surat Arsip Keluar Management
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Inline Style Block for Pseudo-elements -->
+    <style>
+        .breadcrumb-item {
+            position: relative;
+        }
+
+        .breadcrumb-item:not(:last-child)::after {
+            content: " / ";
+            /* Separator */
+            position: absolute;
+            right: -5px;
+            /* Adjust as needed to position correctly */
+            top: 0;
+            color: #6c757d;
+            /* Match the color of the breadcrumb items */
+        }
+
+        .breadcrumb-item::before {
+            content: none !important;
+            /* Removes any default separators */
+        }
+    </style>
+@endsection
+
 @section('container')
     @if (session('info'))
         <div class="alert alert-info">

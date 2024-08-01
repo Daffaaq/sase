@@ -110,7 +110,7 @@
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a href="{{route('surat-keluar-index-kadiv')}}" class="sidebar-link">
+                            <a href="{{ route('surat-keluar-index-kadiv') }}" class="sidebar-link">
                                 <i class="bi bi-envelope-open"></i>
                                 <span>Surat Keluar</span>
                             </a>
@@ -151,6 +151,8 @@
             </div>
         </div>
         <div id="main">
+            @yield('breadcrumbs')
+            <hr style="border: 0; height: 1px; background: #dee2e6; margin: 1rem 0;">
             @yield('container')
         </div>
     </div>

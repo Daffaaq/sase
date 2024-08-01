@@ -89,7 +89,25 @@ class DatabaseSeeder extends Seeder
             'Surat Balasan Permohonan',
             'Surat Balasan Perintah',
             'Surat Balasan Pengantar',
-            'Surat Balasan Edaran'
+            'Surat Balasan Edaran',
+            'Surat Balasan Undangan',
+            'Surat Balasan Keputusan',
+            'Surat Balasan Kuasa',
+            'Surat Balasan Pemberitahuan',
+            'Surat Balasan Tugas',
+            'Surat Balasan Keterangan',
+            'Surat Balasan Penawaran',
+            'Surat Balasan Keberatan',
+            'Surat Balasan Perjanjian',
+            'Surat Balasan Pengunduran Diri',
+            'Surat Balasan Pernyataan',
+            'Surat Balasan Panggilan',
+            'Surat Balasan Izin Cuti',
+            'Surat Balasan Kritik',
+            'Surat Balasan Resmi',
+            'Surat Balasan Informasi',
+            'Surat Balasan Saran',
+            'Surat Balasan Pemberitahuan Rapat',
         ];
 
         foreach ($categoriesoutgoingletter as $category) {
