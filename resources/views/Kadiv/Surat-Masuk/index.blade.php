@@ -603,6 +603,9 @@
                     data: formData,
                     contentType: false,
                     processData: false,
+                    beforeSend: function() {
+                        // Optional: Show a loader or spinner
+                    },
                     success: function(response) {
                         $('#dispositionLetterModal').modal('hide');
                         alert(response.message);
@@ -621,6 +624,9 @@
                         } else {
                             alert('An unknown error occurred.');
                         }
+                    },
+                    complete: function() {
+                        // Optional: Hide the loader or spinner
                     }
                 });
             });

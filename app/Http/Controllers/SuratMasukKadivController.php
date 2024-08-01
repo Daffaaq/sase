@@ -16,6 +16,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use Yajra\DataTables\DataTables;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class SuratMasukKadivController extends Controller
@@ -237,6 +238,9 @@ class SuratMasukKadivController extends Controller
             return response()->json(['message' => 'Validation error.', 'errors' => $validator->errors()], 422);
         }
 
+        // Ambil semua nama pengguna yang terkait dengan user_id dalam satu query
+        $userNames = User::whereIn('id', $request->user_id)->pluck('name', 'id');
+
         DB::beginTransaction();
 
         try {
@@ -245,17 +249,36 @@ class SuratMasukKadivController extends Controller
             $nomerSuratDisposisi = $this->generateNoSuratDis();
             $updateStatus = IncomingLetter::where('uuid', $uuid)->update(['disposition_status' => 'Disposition Sent']);
 
+            $existingUserNames = [];
+
             foreach ($request->user_id as $userId) {
-                $nomerSuratDisposisiIDX = $this->generateNoSuratIdxDis();
-                DispotitionLetter::create([
-                    'letter_id' => $suratMasukData_id,
-                    'nomer_surat_disposisi' => $nomerSuratDisposisi,
-                    'nomer_surat_disposisi_idx' => $nomerSuratDisposisiIDX,
-                    'Tanggal Disposisi' => now()->toDateString(),
-                    'user_id' => $userId,
-                    'Tugas' => $request->Tugas,
-                    'file' => $filePath,
-                ]);
+                // Cek apakah kombinasi user_id dan letter_id sudah ada
+                $existingEntry = DispotitionLetter::where('user_id', $userId)
+                    ->where('letter_id', $suratMasukData_id)
+                    ->exists();
+
+                if ($existingEntry) {
+                    // Tambahkan nama pengguna ke array jika sudah ada
+                    $existingUserNames[] = $userNames[$userId] ?? 'Unknown';
+                } else {
+                    $nomerSuratDisposisiIDX = $this->generateNoSuratIdxDis();
+                    DispotitionLetter::create([
+                        'letter_id' => $suratMasukData_id,
+                        'nomer_surat_disposisi' => $nomerSuratDisposisi,
+                        'nomer_surat_disposisi_idx' => $nomerSuratDisposisiIDX,
+                        'Tanggal Disposisi' => now()->toDateString(),
+                        'user_id' => $userId,
+                        'Tugas' => $request->Tugas,
+                        'file' => $filePath,
+                    ]);
+                }
+            }
+
+            if (!empty($existingUserNames)) {
+                // Jika ada nama pengguna yang sudah ada, rollback dan kembalikan pesan kesalahan
+                DB::rollback();
+                $namesList = implode(', ', $existingUserNames);
+                return response()->json(['message' => 'Terjadi Kesalahan.', 'errors' => ['user_id' => ["Pegawai berikut sudah memiliki disposisi untuk surat ini: $namesList."]]], 422);
             }
 
             DB::commit();
@@ -266,6 +289,8 @@ class SuratMasukKadivController extends Controller
             return response()->json(['message' => 'Failed to upload outgoing letter.', 'error' => $e->getMessage()], 500);
         }
     }
+
+
 
 
 
