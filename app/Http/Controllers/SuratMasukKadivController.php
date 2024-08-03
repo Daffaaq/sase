@@ -17,6 +17,7 @@ use App\Models\SifatIncomingLetter;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use Yajra\DataTables\DataTables;
+use App\Services\ArchiveLetterService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -348,59 +349,26 @@ class SuratMasukKadivController extends Controller
         return $newNoSurat;
     }
 
+    protected $archiveLetterService;
+
+    public function __construct(ArchiveLetterService $archiveLetterService)
+    {
+        $this->archiveLetterService = $archiveLetterService;
+    }
+
     public function archiveLetter(Request $request, $uuid)
     {
-        $suratMasuk = IncomingLetter::where('uuid', $uuid)->first();
-        $suratMasukData_id = IncomingLetter::where('uuid', $uuid)->value('id');
-
-        if (!$suratMasuk) {
-            return response()->json(['message' => 'Incoming letter not found.'], 404);
-        }
-
         DB::beginTransaction();
 
         try {
-            $nomerSuratKeluarIdx = $this->generateNoSuratIdxArc();
-            $outgoingLetter = ArchiveIncomingLetter::create([
-                'letter_incoming_id' => $suratMasukData_id,
-                'kode_arsip_incoming' => $nomerSuratKeluarIdx,
-                'date_archive_incoming' => now()->toDateString(),
-                'category_incoming_id' => $request->category_incoming_id,
-            ]);
-
+            $this->archiveLetterService->processArchiveLetter($request, $uuid);
             DB::commit();
 
             return response()->json(['message' => 'Archive letter uploaded and sent successfully.'], 200);
         } catch (\Exception $e) {
             DB::rollback();
-            return response()->json(['message' => 'Failed to upload Archive letter.', 'error' => $e->getMessage()], 500);
+            return response()->json(['message' => 'Failed to upload Archive letter.', 'error' => $e->getMessage()], $e->getCode() ?: 500);
         }
-    }
-
-    private function generateNoSuratIdxArc()
-    {
-        $newNoSuratIdx = null;
-        $attempts = 0;
-
-        do {
-            // Mengunci tabel untuk mencegah race condition
-            $latestSurat = ArchiveIncomingLetter::lockForUpdate()->orderBy('created_at', 'desc')->first();
-            $latestNoSuratIdx = $latestSurat ? (int)substr($latestSurat->kode_arsip_incoming, 0, 4) : 0;
-            $newNoSuratIdx = str_pad($latestNoSuratIdx + 1, 4, '0', STR_PAD_LEFT);
-
-            $fixedPart = 'SA';
-            $monthRoman = $this->convertToRoman(now()->month);
-            $year = now()->year;
-
-            $generatedIdx = "{$newNoSuratIdx}/{$fixedPart}/{$monthRoman}/{$year}";
-            $attempts++;
-
-            if ($attempts > 100) {
-                throw new \Exception('Failed to generate unique surat index');
-            }
-        } while (ArchiveIncomingLetter::where('kode_arsip_incoming', $generatedIdx)->exists() || DispotitionLetter::where('nomer_surat_disposisi_idx', $generatedIdx)->exists());
-
-        return $generatedIdx;
     }
 
     public function show($uuid)
