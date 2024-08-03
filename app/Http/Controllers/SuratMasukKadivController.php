@@ -18,12 +18,23 @@ use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use Yajra\DataTables\DataTables;
 use App\Services\ArchiveLetterService;
+use App\Services\DispotitionLetterService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class SuratMasukKadivController extends Controller
 {
+    // Ini adalah deklarasi dari properti kelas yang bersifat protected, sehingga bisa diakses oleh kelas itu sendiri dan juga oleh kelas turunan (subclass) yang mungkin Anda miliki.
+    protected $archiveLetterService;
+    protected $dispotitionLetterService;
+
+    // Ini adalah konstruktor dari kelas controller. Konstruktor adalah metode khusus yang dipanggil saat sebuah instance dari kelas dibuat.
+    public function __construct(ArchiveLetterService $archiveLetterService, DispotitionLetterService $dispotitionLetterService)
+    {
+        $this->archiveLetterService = $archiveLetterService;
+        $this->dispotitionLetterService = $dispotitionLetterService;
+    }
     /**
      * Display a listing of the resource.
      */
@@ -222,138 +233,26 @@ class SuratMasukKadivController extends Controller
         return $map[$month];
     }
 
-    public function Disposition(Request $request, $uuid)
+    public function disposition(Request $request, $uuid)
     {
-        ini_set('max_execution_time', 300); // Set maximum execution time to 300 seconds (5 minutes)
-
-        $suratMasuk = IncomingLetter::where('uuid', $uuid)->first();
-        $suratMasukData_id = IncomingLetter::where('uuid', $uuid)->value('id');
-
-        if (!$suratMasuk) {
-            return response()->json(['message' => 'Incoming letter not found.'], 404);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'Tugas' => 'required|string',
-            'file' => 'required|file|mimes:pdf,doc,docx|max:10240',
-            'user_id' => 'required|array',
-            'user_id.*' => 'exists:users,id',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['message' => 'Validation error.', 'errors' => $validator->errors()], 422);
-        }
-
-        // Ambil semua nama pengguna yang terkait dengan user_id dalam satu query
-        $userNames = User::whereIn('id', $request->user_id)->pluck('name', 'id');
-
-        DB::beginTransaction();
-
         try {
-            $filePath = $request->file('file')->store('public/disposisi_letters');
+            $result = $this->dispotitionLetterService->processDispotitionLetter($request, $uuid);
 
-            $nomerSuratDisposisi = $this->generateNoSuratDis();
-            $updateStatus = IncomingLetter::where('uuid', $uuid)->update(['disposition_status' => 'Disposition Sent']);
-
-            $existingUserNames = [];
-
-            foreach ($request->user_id as $userId) {
-                // Cek apakah kombinasi user_id dan letter_id sudah ada
-                $existingEntry = DispotitionLetter::where('user_id', $userId)
-                    ->where('letter_id', $suratMasukData_id)
-                    ->exists();
-
-                if ($existingEntry) {
-                    // Tambahkan nama pengguna ke array jika sudah ada
-                    $existingUserNames[] = $userNames[$userId] ?? 'Unknown';
-                } else {
-                    $nomerSuratDisposisiIDX = $this->generateNoSuratIdxDis();
-                    DispotitionLetter::create([
-                        'letter_id' => $suratMasukData_id,
-                        'nomer_surat_disposisi' => $nomerSuratDisposisi,
-                        'nomer_surat_disposisi_idx' => $nomerSuratDisposisiIDX,
-                        'Tanggal Disposisi' => now()->toDateString(),
-                        'user_id' => $userId,
-                        'Tugas' => $request->Tugas,
-                        'file' => $filePath,
-                    ]);
-                }
+            if (isset($result['status']) && $result['status'] === 'error') {
+                // Handle structured error response
+                return response()->json($result, 422);
             }
 
-            if (!empty($existingUserNames)) {
-                // Jika ada nama pengguna yang sudah ada, rollback dan kembalikan pesan kesalahan
-                DB::rollback();
-                $namesList = implode(', ', $existingUserNames);
-                return response()->json(['message' => 'Terjadi Kesalahan.', 'errors' => ['user_id' => ["Pegawai berikut sudah memiliki disposisi untuk surat ini: $namesList."]]], 422);
-            }
-
-            DB::commit();
-
-            return response()->json(['message' => 'Disposition letter uploaded and sent successfully.'], 200);
+            return response()->json($result, 200); // Ensure the status code is an integer
         } catch (\Exception $e) {
-            DB::rollback();
-            return response()->json(['message' => 'Failed to upload Disposition letter.', 'error' => $e->getMessage()], 500);
+            // Log error
+            Log::error('Failed to process disposition letter: ' . $e->getMessage());
+
+            // Ensure the status code is an integer
+            $statusCode = $e->getCode() && is_int($e->getCode()) ? $e->getCode() : 500;
+
+            return response()->json(['message' => 'Failed to process disposition letter.', 'error' => $e->getMessage()], $statusCode);
         }
-    }
-
-    private function generateNoSuratIdxDis()
-    {
-        $newNoSuratIdx = null;
-        $attempts = 0;
-
-        do {
-            // Mengunci tabel untuk mencegah race condition
-            $latestSurat = DispotitionLetter::lockForUpdate()->orderBy('created_at', 'desc')->first();
-            $latestNoSuratIdx = $latestSurat ? (int)substr($latestSurat->nomer_surat_disposisi_idx, 0, 4) : 0;
-            $newNoSuratIdx = str_pad($latestNoSuratIdx + 1, 4, '0', STR_PAD_LEFT);
-
-            $fixedPart = 'SDP';
-            $monthRoman = $this->convertToRoman(now()->month);
-            $year = now()->year;
-
-            $generatedIdx = "{$newNoSuratIdx}/{$fixedPart}/{$monthRoman}/{$year}";
-            $attempts++;
-
-            if ($attempts > 100) {
-                throw new \Exception('Failed to generate unique surat index');
-            }
-        } while (DispotitionLetter::where('nomer_surat_disposisi_idx', $generatedIdx)->exists());
-
-        return $generatedIdx;
-    }
-
-
-    private function generateNoSuratDis()
-    {
-        $newNoSurat = null;
-        $attempts = 0; // Log the number of attempts
-
-        do {
-            $latestSurat = DispotitionLetter::lockForUpdate()->orderBy('created_at', 'desc')->first();
-            $latestNoSuratIdx = $latestSurat ? (int)substr($latestSurat->nomer_surat_keluar, 0, 4) : 0;
-            $newNoSuratIdx = str_pad($latestNoSuratIdx + 1, 4, '0', STR_PAD_LEFT);
-
-            $fixedPart = 'SDP';
-            $middlePart = 'SASE';
-            $monthRoman = $this->convertToRoman(now()->month);
-            $year = now()->year;
-
-            $newNoSurat = "{$newNoSuratIdx}/{$fixedPart}/{$middlePart}/{$monthRoman}/{$year}";
-            $attempts++;
-
-            if ($attempts > 100) { // Add a condition to break the loop if it runs too many times
-                throw new \Exception('Failed to generate unique surat number');
-            }
-        } while (OutgoingLetter::where('nomer_surat_keluar', $newNoSurat)->exists());
-
-        return $newNoSurat;
-    }
-
-    protected $archiveLetterService;
-
-    public function __construct(ArchiveLetterService $archiveLetterService)
-    {
-        $this->archiveLetterService = $archiveLetterService;
     }
 
     public function archiveLetter(Request $request, $uuid)
@@ -361,6 +260,7 @@ class SuratMasukKadivController extends Controller
         DB::beginTransaction();
 
         try {
+            // Menggunakan service untuk memproses pengarsipan surat
             $this->archiveLetterService->processArchiveLetter($request, $uuid);
             DB::commit();
 
