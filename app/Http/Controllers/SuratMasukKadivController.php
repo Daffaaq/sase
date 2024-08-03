@@ -288,10 +288,10 @@ class SuratMasukKadivController extends Controller
 
             DB::commit();
 
-            return response()->json(['message' => 'Outgoing letter uploaded and sent successfully.'], 200);
+            return response()->json(['message' => 'Disposition letter uploaded and sent successfully.'], 200);
         } catch (\Exception $e) {
             DB::rollback();
-            return response()->json(['message' => 'Failed to upload outgoing letter.', 'error' => $e->getMessage()], 500);
+            return response()->json(['message' => 'Failed to upload Disposition letter.', 'error' => $e->getMessage()], 500);
         }
     }
 
@@ -370,10 +370,10 @@ class SuratMasukKadivController extends Controller
 
             DB::commit();
 
-            return response()->json(['message' => 'Outgoing letter uploaded and sent successfully.'], 200);
+            return response()->json(['message' => 'Archive letter uploaded and sent successfully.'], 200);
         } catch (\Exception $e) {
             DB::rollback();
-            return response()->json(['message' => 'Failed to upload outgoing letter.', 'error' => $e->getMessage()], 500);
+            return response()->json(['message' => 'Failed to upload Archive letter.', 'error' => $e->getMessage()], 500);
         }
     }
 

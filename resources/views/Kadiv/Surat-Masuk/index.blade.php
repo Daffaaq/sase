@@ -582,6 +582,7 @@
                 var sendUrl = '{{ route('outgoing-letter.upload', ':uuid') }}';
                 sendUrl = sendUrl.replace(':uuid', uuid);
                 $('#uploadOutgoingLetterForm').attr('action', sendUrl);
+                $('#uploadOutgoingLetterForm').trigger('reset');
                 $('#uploadOutgoingLetterModal').modal('show');
             });
 
@@ -623,6 +624,7 @@
                 var sendUrl = '{{ route('disposition-letter.upload', ':uuid') }}';
                 sendUrl = sendUrl.replace(':uuid', uuid);
                 $('#uploadDispositionLetterForm').attr('action', sendUrl);
+                $('#uploadDispositionLetterForm').trigger('reset');
                 $('#dispositionLetterModal').modal('show');
             });
 
@@ -644,6 +646,7 @@
                         $('#dispositionLetterModal').modal('hide');
                         alert(response.message);
                         incomingLetterTable.ajax.reload();
+                        $('#uploadDispositionLetterForm').trigger('reset');
                     },
                     error: function(xhr) {
                         var response = xhr.responseJSON;
@@ -664,11 +667,13 @@
                     }
                 });
             });
+
             $('#incomingLetterTable').on('click', '.archiveLetterBtn', function() {
                 var uuid = $(this).data('uuid');
                 var sendUrl = '{{ route('archive-letter.upload', ':uuid') }}';
                 sendUrl = sendUrl.replace(':uuid', uuid);
                 $('#ArchiveLetterForm').attr('action', sendUrl);
+                $('#ArchiveLetterForm').trigger('reset');
                 $('#ArchiveLetterModal').modal('show');
             });
 
@@ -687,7 +692,7 @@
                         // Optional: Show a loader or spinner
                     },
                     success: function(response) {
-                        $('#dispositionLetterModal').modal('hide');
+                        $('#ArchiveLetterModal').modal('hide');
                         alert(response.message);
                         incomingLetterTable.ajax.reload();
                     },
