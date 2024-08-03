@@ -48,6 +48,11 @@ class IncomingLetter extends Model
         return $this->belongsTo(CategoryIncomingLetter::class, 'category_surat_id');
     }
 
+    public function archive()
+    {
+        return $this->hasOne(ArchiveIncomingLetter::class, 'letter_incoming_id');
+    }
+
     public function sifat()
     {
         return $this->belongsTo(SifatIncomingLetter::class, 'sifat_surat_id');

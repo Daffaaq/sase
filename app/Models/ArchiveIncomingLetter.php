@@ -15,6 +15,8 @@ class ArchiveIncomingLetter extends Model
     protected $fillable = [
         'letter_incoming_id',
         'kode_arsip_incoming',
+        'category_incoming_id',
+        'date_archive_incoming',
         'created_by',
         'updated_by',
     ];
@@ -36,6 +38,11 @@ class ArchiveIncomingLetter extends Model
     public function incomingLetter()
     {
         return $this->belongsTo(IncomingLetter::class, 'letter_incoming_id');
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(CategoryArchiveIncomingLetter::class, 'category_incoming_id');
     }
 
     public function creator()

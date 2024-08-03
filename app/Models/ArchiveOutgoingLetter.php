@@ -15,6 +15,8 @@ class ArchiveOutgoingLetter extends Model
     protected $fillable = [
         'uuid',
         'letter_outgoing_id',
+        'category_Outgoing_id',
+        'date_archive_outgoing',
         'kode_arsip_outgoing',
         'created_by',
         'updated_by',
@@ -37,6 +39,10 @@ class ArchiveOutgoingLetter extends Model
     public function outgoingLetter()
     {
         return $this->belongsTo(OutgoingLetter::class, 'letter_outgoing_id');
+    }
+    public function category()
+    {
+        return $this->belongsTo(CategoryArchiveOutgoingLetter::class, 'category_Outgoing_id');
     }
 
     public function creator()

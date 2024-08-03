@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Mail\LetterAccepted;
 use App\Mail\LetterRejected;
 use App\Mail\OutgoingLetterMail;
+use App\Models\ArchiveIncomingLetter;
+use App\Models\CategoryArchiveIncomingLetter;
 use App\Models\CategoryIncomingLetter;
 use App\Models\CategoryOutgoingLetter;
 use App\Models\DispotitionLetter;
@@ -29,14 +31,17 @@ class SuratMasukKadivController extends Controller
         $sifats = SifatIncomingLetter::all(); // Sesuaikan dengan model yang digunakan
         $categories = CategoryIncomingLetter::all(); // Sesuaikan dengan model yang digunakan
         $categoryOutgoingLetters = CategoryOutgoingLetter::all();
+        $categoryArchiveLetters = CategoryArchiveIncomingLetter::all();
         $users = User::where('role', 'pegawai')->get();
-        return view('Kadiv.Surat-Masuk.index', compact('sifats', 'categories', 'categoryOutgoingLetters', 'users'));
+        return view('Kadiv.Surat-Masuk.index', compact('sifats', 'categories', 'categoryOutgoingLetters', 'categoryArchiveLetters', 'users'));
     }
 
     public function list(Request $request)
     {
         if ($request->ajax()) {
-            $data = IncomingLetter::with('category', 'sifat')->select('id', 'uuid', 'nomer_surat_masuk', 'nomer_surat_masuk_idx', 'tanggal_surat_masuk', 'sifat_surat_id', 'category_surat_id', 'status', 'disposition_status');
+            $data = IncomingLetter::with('category', 'sifat')
+                ->select('id', 'uuid', 'nomer_surat_masuk', 'nomer_surat_masuk_idx', 'tanggal_surat_masuk', 'sifat_surat_id', 'category_surat_id', 'status', 'disposition_status')
+                ->whereDoesntHave('archive');
 
             if ($request->sifat) {
                 $data->where('sifat_surat_id', $request->sifat);
@@ -290,10 +295,6 @@ class SuratMasukKadivController extends Controller
         }
     }
 
-
-
-
-
     private function generateNoSuratIdxDis()
     {
         $newNoSuratIdx = null;
@@ -345,6 +346,61 @@ class SuratMasukKadivController extends Controller
         } while (OutgoingLetter::where('nomer_surat_keluar', $newNoSurat)->exists());
 
         return $newNoSurat;
+    }
+
+    public function archiveLetter(Request $request, $uuid)
+    {
+        $suratMasuk = IncomingLetter::where('uuid', $uuid)->first();
+        $suratMasukData_id = IncomingLetter::where('uuid', $uuid)->value('id');
+
+        if (!$suratMasuk) {
+            return response()->json(['message' => 'Incoming letter not found.'], 404);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $nomerSuratKeluarIdx = $this->generateNoSuratIdxArc();
+            $outgoingLetter = ArchiveIncomingLetter::create([
+                'letter_incoming_id' => $suratMasukData_id,
+                'kode_arsip_incoming' => $nomerSuratKeluarIdx,
+                'date_archive_incoming' => now()->toDateString(),
+                'category_incoming_id' => $request->category_incoming_id,
+            ]);
+
+            DB::commit();
+
+            return response()->json(['message' => 'Outgoing letter uploaded and sent successfully.'], 200);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['message' => 'Failed to upload outgoing letter.', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    private function generateNoSuratIdxArc()
+    {
+        $newNoSuratIdx = null;
+        $attempts = 0;
+
+        do {
+            // Mengunci tabel untuk mencegah race condition
+            $latestSurat = ArchiveIncomingLetter::lockForUpdate()->orderBy('created_at', 'desc')->first();
+            $latestNoSuratIdx = $latestSurat ? (int)substr($latestSurat->kode_arsip_incoming, 0, 4) : 0;
+            $newNoSuratIdx = str_pad($latestNoSuratIdx + 1, 4, '0', STR_PAD_LEFT);
+
+            $fixedPart = 'SA';
+            $monthRoman = $this->convertToRoman(now()->month);
+            $year = now()->year;
+
+            $generatedIdx = "{$newNoSuratIdx}/{$fixedPart}/{$monthRoman}/{$year}";
+            $attempts++;
+
+            if ($attempts > 100) {
+                throw new \Exception('Failed to generate unique surat index');
+            }
+        } while (ArchiveIncomingLetter::where('kode_arsip_incoming', $generatedIdx)->exists() || DispotitionLetter::where('nomer_surat_disposisi_idx', $generatedIdx)->exists());
+
+        return $generatedIdx;
     }
 
     public function show($uuid)

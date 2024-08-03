@@ -284,6 +284,37 @@
         </div>
     </div>
 
+    <div class="modal fade" id="ArchiveLetterModal" tabindex="-1" aria-labelledby="ArchiveLetterLetterModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <form id="ArchiveLetterForm" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ArchiveLetterLetterModalLabel">Upload Archive Letter</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="category_incoming_id" class="form-label">Category Surat ID</label>
+                            <select class="form-select" id="category_incoming_id" name="category_incoming_id" required>
+                                <option value="" disabled selected>Pilih Kategori Surat</option>
+                                @foreach ($categoryArchiveLetters as $category)
+                                    <option value="{{ $category->id }}">{{ $category->name_jenis_arsip_surat_masuk }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button id="sendActionBtn" type="submit" class="btn btn-primary">Upload</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <script>
         $(document).ready(function() {
@@ -371,6 +402,9 @@
                             let buttons = `
         <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-info showDetailBtn">
             <i class="bi bi-eye"></i>
+        </button>
+        <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-warning archiveLetterBtn">
+            <i class="bi bi-archive"></i>
         </button>`;
 
                             // Check if status_sent is true
@@ -593,6 +627,52 @@
             });
 
             $('#uploadDispositionLetterForm').submit(function(e) {
+                e.preventDefault(); // Prevent the default form submission
+
+                var formData = new FormData(this);
+
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    beforeSend: function() {
+                        // Optional: Show a loader or spinner
+                    },
+                    success: function(response) {
+                        $('#dispositionLetterModal').modal('hide');
+                        alert(response.message);
+                        incomingLetterTable.ajax.reload();
+                    },
+                    error: function(xhr) {
+                        var response = xhr.responseJSON;
+                        if (response) {
+                            var errorMessages = response.message;
+                            if (response.errors) {
+                                for (var key in response.errors) {
+                                    errorMessages += '\n' + response.errors[key].join('\n');
+                                }
+                            }
+                            alert(errorMessages);
+                        } else {
+                            alert('An unknown error occurred.');
+                        }
+                    },
+                    complete: function() {
+                        // Optional: Hide the loader or spinner
+                    }
+                });
+            });
+            $('#incomingLetterTable').on('click', '.archiveLetterBtn', function() {
+                var uuid = $(this).data('uuid');
+                var sendUrl = '{{ route('archive-letter.upload', ':uuid') }}';
+                sendUrl = sendUrl.replace(':uuid', uuid);
+                $('#ArchiveLetterForm').attr('action', sendUrl);
+                $('#ArchiveLetterModal').modal('show');
+            });
+
+            $('#ArchiveLetterForm').submit(function(e) {
                 e.preventDefault(); // Prevent the default form submission
 
                 var formData = new FormData(this);

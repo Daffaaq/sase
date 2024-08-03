@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('letter_incoming_id');
             $table->unsignedBigInteger('category_incoming_id');
             $table->string('kode_arsip_incoming');
+            $table->date('date_archive_incoming');
             $table->foreign('letter_incoming_id')->references('id')->on('incoming_letters')->onDelete('cascade');
             $table->foreign('category_incoming_id')->references('id')->on('category_archive_incoming_letters')->onDelete('cascade');
             $table->dateTime('created_at')->nullable()->useCurrent();
