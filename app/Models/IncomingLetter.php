@@ -67,4 +67,25 @@ class IncomingLetter extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
+
+    public static function filter($filters)
+    {
+        $query = self::with('category', 'sifat')
+        ->select('id', 'uuid', 'nomer_surat_masuk', 'nomer_surat_masuk_idx', 'tanggal_surat_masuk', 'sifat_surat_id', 'category_surat_id', 'status', 'disposition_status')
+        ->whereDoesntHave('archive');
+
+        if (isset($filters['sifat']) && $filters['sifat']) {
+            $query->where('sifat_surat_id', $filters['sifat']);
+        }
+
+        if (isset($filters['kategori']) && $filters['kategori']) {
+            $query->where('category_surat_id', $filters['kategori']);
+        }
+
+        if (isset($filters['tanggal']) && $filters['tanggal']) {
+            $query->whereDate('tanggal_surat_masuk', $filters['tanggal']);
+        }
+
+        return $query;
+    }
 }

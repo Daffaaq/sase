@@ -17,10 +17,13 @@ use App\Models\SifatIncomingLetter;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use Yajra\DataTables\DataTables;
+use App\Services\IndexSuratMasuk;
+use App\Services\ListDataSuratMasuk;
 use App\Services\ArchiveLetterService;
 use App\Services\DispotitionLetterService;
-use Illuminate\Http\Request;
 use App\Services\VerifSurat;
+use App\Services\UploadOutgoingLetter;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
@@ -29,59 +32,28 @@ class SuratMasukKadivController extends Controller
     // Ini adalah deklarasi dari properti kelas yang bersifat protected, sehingga bisa diakses oleh kelas itu sendiri dan juga oleh kelas turunan (subclass) yang mungkin Anda miliki.
     protected $archiveLetterService;
     protected $dispotitionLetterService;
+    protected $suratMasukIndexService;
 
     // Ini adalah konstruktor dari kelas controller. Konstruktor adalah metode khusus yang dipanggil saat sebuah instance dari kelas dibuat.
-    public function __construct(ArchiveLetterService $archiveLetterService, DispotitionLetterService $dispotitionLetterService)
+    public function __construct(IndexSuratMasuk $suratMasukIndexService, ArchiveLetterService $archiveLetterService, DispotitionLetterService $dispotitionLetterService)
     {
         $this->archiveLetterService = $archiveLetterService;
         $this->dispotitionLetterService = $dispotitionLetterService;
+        $this->suratMasukIndexService = $suratMasukIndexService;
     }
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $sifats = SifatIncomingLetter::all(); // Sesuaikan dengan model yang digunakan
-        $categories = CategoryIncomingLetter::all(); // Sesuaikan dengan model yang digunakan
-        $categoryOutgoingLetters = CategoryOutgoingLetter::all();
-        $categoryArchiveLetters = CategoryArchiveIncomingLetter::all();
-        $users = User::where('role', 'pegawai')->get();
-        return view('Kadiv.Surat-Masuk.index', compact('sifats', 'categories', 'categoryOutgoingLetters', 'categoryArchiveLetters', 'users'));
+        $data = $this->suratMasukIndexService->getIndexData();
+        return view('Kadiv.Surat-Masuk.index', $data);
     }
 
     public function list(Request $request)
     {
-        if ($request->ajax()) {
-            $data = IncomingLetter::with('category', 'sifat')
-                ->select('id', 'uuid', 'nomer_surat_masuk', 'nomer_surat_masuk_idx', 'tanggal_surat_masuk', 'sifat_surat_id', 'category_surat_id', 'status', 'disposition_status')
-                ->whereDoesntHave('archive');
-
-            if ($request->sifat) {
-                $data->where('sifat_surat_id', $request->sifat);
-            }
-
-            if ($request->kategori) {
-                $data->where('category_surat_id', $request->kategori);
-            }
-
-            if ($request->tanggal) {
-                $data->whereDate('tanggal_surat_masuk', $request->tanggal);
-            }
-
-            $dataCollection = $data->get();
-            $data_ids = $dataCollection->pluck('id');
-
-            $dataoutgoing = OutgoingLetter::whereIn('reference_letter_id', $data_ids)->pluck('reference_letter_id')->toArray();
-
-            foreach ($dataCollection as $letter) {
-                $letter->status_sent = in_array($letter->id, $dataoutgoing);
-            }
-
-            return DataTables::of($dataCollection)
-                ->addIndexColumn()
-                ->make(true);
-        }
-        return response()->json(['message' => 'Method not allowed'], 405);
+        $listDataSuratMasuk = new ListDataSuratMasuk();
+        return $listDataSuratMasuk->getData($request);
     }
 
     public function accepted(Request $request, $uuid)
@@ -96,117 +68,8 @@ class SuratMasukKadivController extends Controller
 
     public function uploadOutgoingLetter(Request $request, $uuid)
     {
-        ini_set('max_execution_time', 300); // Set maximum execution time to 300 seconds (5 minutes)
-
-        $suratMasuk = IncomingLetter::where('uuid', $uuid)->first();
-        $suratMasukData_id = IncomingLetter::where('uuid', $uuid)->value('id');
-
-        if (!$suratMasuk) {
-            return response()->json(['message' => 'Incoming letter not found.'], 404);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'keterangan' => 'nullable|string',
-            'file' => 'required|file|mimes:pdf,doc,docx|max:10240',
-            'category_surat_id' => 'required|exists:category_outgoing_letters,id',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['message' => 'Validation error.', 'errors' => $validator->errors()], 422);
-        }
-
-        DB::beginTransaction();
-
-        try {
-            $filePath = $request->file('file')->store('public/outgoing_letters');
-
-            $nomerSuratKeluarIdx = $this->generateNoSuratIdx();
-            $nomerSuratKeluar = $this->generateNoSurat();
-
-            $outgoingLetter = OutgoingLetter::create([
-                'reference_letter_id' => $suratMasukData_id,
-                'nomer_surat_keluar' => $nomerSuratKeluar,
-                'nomer_surat_keluark_idx' => $nomerSuratKeluarIdx,
-                'tanggal_surat_keluar' => now()->toDateString(),
-                'nama_penerima' => $suratMasuk->nama_pengirim,
-                'email_penerima' => $suratMasuk->email_pengirim,
-                'keterangan' => $request->keterangan,
-                'file' => $filePath,
-                'category_surat_id' => $request->category_surat_id,
-                'status' => 'Sent',
-            ]);
-
-            Mail::to($suratMasuk->email_pengirim)->send(new OutgoingLetterMail($outgoingLetter));
-
-            DB::commit();
-
-            return response()->json(['message' => 'Outgoing letter uploaded and sent successfully.'], 200);
-        } catch (\Exception $e) {
-            DB::rollback();
-            return response()->json(['message' => 'Failed to upload outgoing letter.', 'error' => $e->getMessage()], 500);
-        }
-    }
-
-    private function generateNoSuratIdx()
-    {
-        $newNoSuratIdx = null;
-        $attempts = 0; // Log the number of attempts
-
-        do {
-            $latestSurat = OutgoingLetter::lockForUpdate()->orderBy('created_at', 'desc')->first();
-            $latestNoSuratIdx = $latestSurat ? (int)substr($latestSurat->nomer_surat_keluark_idx, 0, 4) : 0;
-            $newNoSuratIdx = str_pad($latestNoSuratIdx + 1, 4, '0', STR_PAD_LEFT);
-
-            $fixedPart = 'SOT';
-            $monthRoman = $this->convertToRoman(now()->month);
-            $year = now()->year;
-
-            $generatedIdx = "{$newNoSuratIdx}/{$fixedPart}/{$monthRoman}/{$year}";
-            $attempts++;
-
-            if ($attempts > 100) { // Add a condition to break the loop if it runs too many times
-                throw new \Exception('Failed to generate unique surat index');
-            }
-        } while (OutgoingLetter::where('nomer_surat_keluark_idx', $generatedIdx)->exists());
-
-        return $generatedIdx;
-    }
-
-    private function generateNoSurat()
-    {
-        $newNoSurat = null;
-        $attempts = 0; // Log the number of attempts
-
-        do {
-            $latestSurat = OutgoingLetter::lockForUpdate()->orderBy('created_at', 'desc')->first();
-            $latestNoSuratIdx = $latestSurat ? (int)substr($latestSurat->nomer_surat_keluar, 0, 4) : 0;
-            $newNoSuratIdx = str_pad($latestNoSuratIdx + 1, 4, '0', STR_PAD_LEFT);
-
-            $fixedPart = 'SOT';
-            $middlePart = 'SASE';
-            $monthRoman = $this->convertToRoman(now()->month);
-            $year = now()->year;
-
-            $newNoSurat = "{$newNoSuratIdx}/{$fixedPart}/{$middlePart}/{$monthRoman}/{$year}";
-            $attempts++;
-
-            if ($attempts > 100) { // Add a condition to break the loop if it runs too many times
-                throw new \Exception('Failed to generate unique surat number');
-            }
-        } while (OutgoingLetter::where('nomer_surat_keluar', $newNoSurat)->exists());
-
-        return $newNoSurat;
-    }
-
-
-    private function convertToRoman($month)
-    {
-        $map = [
-            1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV',
-            5 => 'V', 6 => 'VI', 7 => 'VII', 8 => 'VIII',
-            9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII',
-        ];
-        return $map[$month];
+        $uploadService = new UploadOutgoingLetter();
+        return $uploadService->handleUpload($request, $uuid);
     }
 
     public function disposition(Request $request, $uuid)
