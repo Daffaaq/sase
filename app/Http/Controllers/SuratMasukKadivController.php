@@ -20,6 +20,7 @@ use Yajra\DataTables\DataTables;
 use App\Services\ArchiveLetterService;
 use App\Services\DispotitionLetterService;
 use Illuminate\Http\Request;
+use App\Services\VerifSurat;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
@@ -83,39 +84,14 @@ class SuratMasukKadivController extends Controller
         return response()->json(['message' => 'Method not allowed'], 405);
     }
 
-
     public function accepted(Request $request, $uuid)
     {
-        $suratMasuk = IncomingLetter::where('uuid', $uuid)->first();
-
-        if (!$suratMasuk) {
-            return response()->json(['message' => 'Surat masuk not found.'], 404);
-        }
-
-        $suratMasuk->update([
-            'status' => 'Approved',
-        ]);
-
-        Mail::to($suratMasuk->email_pengirim)->send(new LetterAccepted($suratMasuk));
-
-        return response()->json(['message' => 'Surat masuk approved successfully.'], 200);
+        return VerifSurat::approve($uuid);
     }
 
     public function rejected(Request $request, $uuid)
     {
-        $suratMasuk = IncomingLetter::where('uuid', $uuid)->first();
-
-        if (!$suratMasuk) {
-            return response()->json(['message' => 'Surat masuk not found.'], 404);
-        }
-
-        $suratMasuk->update([
-            'status' => 'Rejected',
-        ]);
-
-        Mail::to($suratMasuk->email_pengirim)->send(new LetterRejected($suratMasuk));
-
-        return response()->json(['message' => 'Surat masuk rejected successfully.'], 200);
+        return VerifSurat::reject($uuid);
     }
 
     public function uploadOutgoingLetter(Request $request, $uuid)
