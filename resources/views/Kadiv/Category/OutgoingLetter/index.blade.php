@@ -217,20 +217,22 @@
                         searchable: false,
                         render: function(data, type, row, meta) {
                             return `
-                                <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-warning editCategoryBtn">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-                                <button data-uuid="${row.uuid}" data-name="${row.name_jenis_surat_keluar}" class="btn icon btn-sm btn-danger deleteCategoryBtn">
-                                    <i class="bi bi-trash"></i>
-                                </button>`;
+                    <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-warning editCategoryBtn" data-bs-toggle="tooltip" title="Edit Category">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button data-uuid="${row.uuid}" data-name="${row.name_jenis_surat_keluar}" class="btn icon btn-sm btn-danger deleteCategoryBtn" data-bs-toggle="tooltip" title="Delete Category">
+                        <i class="bi bi-trash"></i>
+                    </button>`;
                         }
                     }
                 ],
                 autoWidth: false,
                 drawCallback: function(settings) {
-                    $('a').tooltip();
+                    // Inisialisasi tooltips setelah datatable di-render
+                    $('[data-bs-toggle="tooltip"]').tooltip();
                 }
             });
+
 
             $('#createCategoryBtn').click(function() {
                 $('#categoryForm')[0].reset();

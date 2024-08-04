@@ -2,21 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\LetterAccepted;
-use App\Mail\LetterRejected;
-use App\Mail\OutgoingLetterMail;
-use App\Models\ArchiveIncomingLetter;
-use App\Models\CategoryArchiveIncomingLetter;
-use App\Models\CategoryIncomingLetter;
-use App\Models\CategoryOutgoingLetter;
-use App\Models\DispotitionLetter;
 use App\Models\IncomingLetter;
 use App\Models\OutgoingLetter;
 use Illuminate\Support\Facades\DB;
-use App\Models\SifatIncomingLetter;
-use App\Models\User;
-use Illuminate\Support\Facades\Mail;
-use Yajra\DataTables\DataTables;
 use App\Services\IndexSuratMasuk;
 use App\Services\ListDataSuratMasuk;
 use App\Services\ArchiveLetterService;
@@ -25,7 +13,6 @@ use App\Services\VerifSurat;
 use App\Services\UploadOutgoingLetter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
 
 class SuratMasukKadivController extends Controller
 {

@@ -400,55 +400,55 @@
 
                             // Initialize buttons with the show detail button
                             let buttons = `
-        <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-info showDetailBtn">
-            <i class="bi bi-eye"></i>
-        </button>
-        <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-warning archiveLetterBtn">
-            <i class="bi bi-archive"></i>
-        </button>`;
+            <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-info showDetailBtn" data-bs-toggle="tooltip" title="Show Details">
+                <i class="bi bi-eye"></i>
+            </button>
+            <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-warning archiveLetterBtn" data-bs-toggle="tooltip" title="Archive Letter">
+                <i class="bi bi-archive"></i>
+            </button>`;
 
                             // Check if status_sent is true
                             if (row.status_sent) {
                                 buttons += `
-            <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-success dispositionLetterBtn">
-                <i class="bi bi-send"></i>
-            </button>`;
+                <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-success dispositionLetterBtn" data-bs-toggle="tooltip" title="Send Disposition">
+                    <i class="bi bi-send"></i>
+                </button>`;
                             } else {
                                 // Add buttons based on the disposition_status and status
                                 if (row.status === 'Pending') {
                                     buttons += `
-                <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-success acceptBtn">
-                    <i class="bi bi-check"></i>
-                </button>
-                <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-danger rejectBtn">
-                    <i class="bi bi-x"></i>
-                </button>`;
+                    <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-success acceptBtn" data-bs-toggle="tooltip" title="Accept Letter">
+                        <i class="bi bi-check"></i>
+                    </button>
+                    <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-danger rejectBtn" data-bs-toggle="tooltip" title="Reject Letter">
+                        <i class="bi bi-x"></i>
+                    </button>`;
                                 } else if (row.status === 'Approved') {
                                     buttons += `
-                <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-danger rejectBtn">
-                    <i class="bi bi-x"></i>
-                </button>
-                <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-primary sendLetterBtn">
-                    <i class="bi bi-send"></i>
-                </button>`;
+                    <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-danger rejectBtn" data-bs-toggle="tooltip" title="Reject Letter">
+                        <i class="bi bi-x"></i>
+                    </button>
+                    <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-primary sendLetterBtn" data-bs-toggle="tooltip" title="Send Letter">
+                        <i class="bi bi-send"></i>
+                    </button>`;
                                 } else if (row.status === 'Rejected') {
                                     buttons += `
-                <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-success acceptBtn">
-                    <i class="bi bi-check"></i>
-                </button>
-                <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-primary sendLetterBtn">
-                    <i class="bi bi-send"></i>
-                </button>`;
+                    <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-success acceptBtn" data-bs-toggle="tooltip" title="Accept Letter">
+                        <i class="bi bi-check"></i>
+                    </button>
+                    <button data-uuid="${row.uuid}" class="btn icon btn-sm btn-primary sendLetterBtn" data-bs-toggle="tooltip" title="Send Letter">
+                        <i class="bi bi-send"></i>
+                    </button>`;
                                 }
                             }
 
                             return buttons;
                         },
-                    },
+                    }
                 ],
                 autoWidth: false,
                 drawCallback: function(settings) {
-                    $('a').tooltip();
+                    $('[data-bs-toggle="tooltip"]').tooltip();
                 }
             });
 
