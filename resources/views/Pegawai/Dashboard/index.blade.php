@@ -1,4 +1,4 @@
-@extends('Pegawai.layouts.index')
+@extends('Pegawai.new_layouts.main')
 @section('container')
     <!-- Begin Page Content -->
     <div class="container-fluid">

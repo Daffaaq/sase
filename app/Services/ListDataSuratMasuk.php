@@ -24,7 +24,9 @@ class ListDataSuratMasuk
         ];
 
         // Dapatkan data yang sudah difilter menggunakan metode filter pada model
-        $data = IncomingLetter::filter($filters)->get();
+        $data = IncomingLetter::filter($filters)
+            ->whereDoesntHave('archive')
+        ->get();
         $data_ids = $data->pluck('id');
 
         // Cari surat keluar terkait
